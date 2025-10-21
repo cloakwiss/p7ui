@@ -15,36 +15,30 @@
                 <div class="input-group">
                     <label for="target_path">Target Executable</label>
                     <input
-                        type="text"
+                        required
+                        type="url"
                         id="target_path"
                         placeholder="Selected target executable path will appear here"
-                        readonly
+                        data-bind="target"
                     />
                 </div>
 
                 <div class="input-group">
                     <label for="hookdll_path">Hook DLL</label>
                     <input
-                        type="text"
+                        required
+                        type="url"
                         id="hookdll_path"
                         placeholder="Selected hookdll will appear here"
-                        readonly
+                        data-bind="hook"
                     />
                 </div>
 
                 <div class="button-group">
-                    <button
-                        data-on-click="@post('/target_pick')"
-                        <!--data-bind="target_path"-->
-                    >
-                        Pick Target
-                    </button>
-                    <button
-                        data-on-click="@post('/hookdll_pick')"
-                        <!--data-bind="hookdll_path"-->
-                    >
+                    <button data-on-click="@post('/target_pick')">Run</button>
+                    <!--<button data-on-click="@post('/hookdll_pick')">
                         Pick Hookdll
-                    </button>
+                    </button>-->
                     <button class="controls" data-on-click="@post('/spawnp7')">
                         Start
                     </button>
@@ -74,10 +68,7 @@
                 <div class="panes-container">
                     <div class="data-pane">
                         <h3>Console Output</h3>
-                        <div
-                            class="data-content"
-                            id="console-output"
-                        ></div>
+                        <div class="data-content" id="console-output"></div>
                     </div>
 
                     <!-- <div class="data-pane"> -->

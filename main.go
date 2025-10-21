@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,6 +22,11 @@ var style []byte
 var datastarScript []byte
 
 const port = 1337
+
+type target struct {
+	Executable string `json:"target"`
+	Hookdll    string `json:"hook"`
+}
 
 func main() {
 	router := chi.NewRouter()
@@ -45,6 +51,20 @@ func main() {
 			w.Write(datastarScript)
 		})
 	}
+
+	router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
+		var target = target{}
+
+		defer r.Body.Close()
+
+		if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
+			log.Println("Decode failed:", err)
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+
+		log.Printf("Data: %+v", target)
+	})
 
 	router.Post("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
 		sse := datastar.NewSSE(w, r)
