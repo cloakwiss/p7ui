@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>File Picker Example</title>
+        <link rel="stylesheet" href="/style.css" />
+    </head>
+    <body>
+        <main class="app-container">
+            <aside class="control-panel">
+                <h2>Control Panel</h2>
+
+                <form class="input-group">
+                    <label for="target_path">Target Executable</label>
+                    <input
+                        required
+                        type="text"
+                        id="target_path"
+                        placeholder="Selected target executable path will appear here"
+                        data-bind="target"
+                    />
+                </form>
+
+                <form class="input-group">
+                    <label for="hookdll_path">Hook DLL</label>
+                    <input
+                        required
+                        type="text"
+                        id="hookdll_path"
+                        placeholder="Selected hookdll will appear here"
+                        data-bind="hook"
+                    />
+                </form>
+
+                <nav class="button-group">
+                    <button type="button" data-on-click="@post('/target_pick')">
+                        Run
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/spawnp7')"
+                    >
+                        Start
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/stop')"
+                    >
+                        Stop
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/resume')"
+                    >
+                        Resume
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/abort')"
+                    >
+                        Abort
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/step')"
+                    >
+                        Step
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/stec')"
+                    >
+                        STEC
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/stsc')"
+                    >
+                        STSC
+                    </button>
+                    <button type="button" id="toggle-detail">
+                        Show Details
+                    </button>
+                </nav>
+            </aside>
+
+            <section
+                class="content-area"
+                id="content-area"
+                data-show-console="false"
+            >
+                <article class="pane console-pane">
+                    <h3>Console Output</h3>
+                    <div class="pane-content">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Section</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body"></tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <div class="resize-handle" id="resize-handle"></div>
+
+                <article class="pane details-pane">
+                    <h3>Hook Details</h3>
+                    <div class="pane-content">
+                        <textarea
+                            class="details-textarea"
+                            id="hook-details"
+                            aria-label="Hook details"
+                        ></textarea>
+                    </div>
+                </article>
+            </section>
+        </main>
+
+        <script type="module" src="/drag.js"></script>
+        <script type="module" src="/datastar.js"></script>
+    </body>
+</html>

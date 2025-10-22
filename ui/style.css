@@ -1,0 +1,219 @@
+:root {
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3d3d3d;
+    --border-color: #4d4d4d;
+    --border-hover: #5d5d5d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-placeholder: #6d6d6d;
+    --accent-color: #61dafb;
+    --accent-hover: #4fa8c5;
+    --shadow: rgba(0, 0, 0, 0.3);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+
+    & main.app-container {
+        display: flex;
+        height: 100vh;
+        padding: 20px;
+        gap: 20px;
+
+        & aside.control-panel {
+            flex-shrink: 0;
+            width: clamp(200px, 15%, 300px);
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            & h2 {
+                margin: 0;
+                color: var(--accent-color);
+                font-size: 1.5rem;
+            }
+
+            & form.input-group {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+
+                & label {
+                    font-weight: 500;
+                    color: var(--text-secondary);
+                    font-size: 0.9rem;
+                }
+
+                & input {
+                    padding: 10px;
+                    background: var(--bg-tertiary);
+                    border: 1px solid var(--border-color);
+                    border-radius: 4px;
+                    color: var(--text-primary);
+                    font-size: 0.95rem;
+
+                    &::placeholder {
+                        color: var(--text-placeholder);
+                    }
+
+                    &:focus {
+                        outline: none;
+                        border-color: var(--accent-color);
+                    }
+                }
+            }
+
+            & nav.button-group {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+
+                & button {
+                    padding: 10px 20px;
+                    background: var(--accent-color);
+                    border: none;
+                    border-radius: 4px;
+                    color: var(--bg-primary);
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s;
+
+                    &:hover {
+                        background: var(--accent-hover);
+                    }
+
+                    &.secondary {
+                        background: var(--border-color);
+                        color: var(--text-primary);
+
+                        &:hover {
+                            background: var(--border-hover);
+                        }
+                    }
+                }
+            }
+        }
+
+        & section.content-area {
+            flex: 1;
+            min-width: 0;
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 100%;
+            transition: grid-template-columns 0.3s ease;
+
+            &[data-show-console="true"] {
+                grid-template-columns: clamp(
+                        25%,
+                        var(--console-width, 480px),
+                        75%
+                    ) 6px 1fr;
+
+                & div.resize-handle {
+                    display: block;
+                }
+            }
+
+            &:not([data-show-console="true"]) {
+                & article.console-pane,
+                & div.resize-handle {
+                    display: none;
+                }
+            }
+
+            & article.pane {
+                background: var(--bg-secondary);
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 2px 8px var(--shadow);
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                overflow: hidden;
+
+                & h3 {
+                    margin: 0 0 15px 0;
+                    color: var(--accent-color);
+                    font-size: 1.2rem;
+                    flex-shrink: 0;
+                }
+
+                & div.pane-content {
+                    flex: 1;
+                    min-height: 0;
+                    overflow: auto;
+                    background: var(--bg-primary);
+                    border: 1px solid var(--border-color);
+                    border-radius: 4px;
+                    padding: 15px;
+
+                    & table.console-table {
+                        width: 100%;
+                        border-collapse: collapse;
+
+                        & thead {
+                            position: sticky;
+                            top: 0;
+                            background: var(--bg-primary);
+                            z-index: 1;
+
+                            & tr th {
+                                text-align: left;
+                                padding: 8px;
+                                font-weight: 600;
+                                color: var(--accent-color);
+                                border-bottom: 2px solid var(--border-color);
+                            }
+                        }
+
+                        & tbody td {
+                            padding: 8px;
+                            border-bottom: 1px solid var(--border-color);
+                        }
+                    }
+
+                    & textarea.details-textarea {
+                        width: 100%;
+                        height: 100%;
+                        background: transparent;
+                        border: none;
+                        color: var(--text-primary);
+                        font-family: monospace;
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                        resize: none;
+                        outline: none;
+                    }
+                }
+            }
+
+            & div.resize-handle {
+                width: 6px;
+                background: var(--border-color);
+                cursor: col-resize;
+                border-radius: 2px;
+                transition: background 0.2s;
+                display: none;
+
+                &:hover {
+                    background: var(--accent-color);
+                }
+            }
+        }
+    }
+}
