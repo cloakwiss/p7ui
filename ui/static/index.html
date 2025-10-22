@@ -36,9 +36,7 @@
 
                 <div class="button-group">
                     <button data-on-click="@post('/target_pick')">Run</button>
-                    <!--<button data-on-click="@post('/hookdll_pick')">
-                        Pick Hookdll
-                    </button>-->
+
                     <button class="controls" data-on-click="@post('/spawnp7')">
                         Start
                     </button>
@@ -60,40 +58,28 @@
                     <button class="controls" data-on-click="@post('/stsc')">
                         STSC
                     </button>
+
+                    <button class="control" id="toggle-detail">
+                        Show Details
+                    </button>
                 </div>
             </div>
 
-            <!-- Data Panes Area -->
-            <div class="data-area">
-                <div class="panes-container">
-                    <div class="data-pane">
-                        <h3>Console Output</h3>
-                        <div class="data-content" id="console-output"></div>
-                    </div>
-
-                    <!-- <div class="data-pane"> -->
-                    <!-- 	<h3>Process Monitor</h3> -->
-                    <!-- 	<div class="data-content" id="process-monitor"> -->
-                    <!-- 		No processes detected... -->
-                    <!-- 	</div> -->
-                    <!-- </div> -->
-
-                    <div class="data-pane">
-                        <h3>Hook Status</h3>
-                        <textarea class="data-content" id="hook-status">
-                        </textarea>
-                    </div>
-
-                    <!-- <div class="data-pane"> -->
-                    <!-- 	<h3>System Log</h3> -->
-                    <!-- 	<div class="data-content" id="system-log"> -->
-                    <!-- 		System ready... -->
-                    <!-- 	</div> -->
-                    <!-- </div> -->
+            <div id="panes-container" data-to-show-col1="false">
+                <div class="data-pane" id="col1">
+                    <h3>Console Output</h3>
+                    <div class="data-content" id="console-output"></div>
+                </div>
+                <div id="drag"></div>
+                <div class="data-pane" id="col2">
+                    <h3>Hook Details</h3>
+                    <textarea class="data-content" id="hook-details">
+                    </textarea>
                 </div>
             </div>
         </div>
 
         <script type="module" src="/datastar.js"></script>
+        <script type="module" src="/drag.js"></script>
     </body>
 </html>
