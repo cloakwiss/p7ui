@@ -86,28 +86,22 @@
                     >
                         STSC
                     </button>
-                    <button type="button" id="toggle-detail">
+                    <!-- <button type="button" id="toggle-detail">
                         Show Details
-                    </button>
+                    </button> -->
                 </nav>
             </aside>
 
             <section
                 class="content-area"
                 id="content-area"
-                data-show-console="false"
+                data-show-console="true"
             >
                 <article class="pane console-pane">
                     <h3>Console Output</h3>
                     <div class="pane-content">
                         <table class="console-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Section</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body"></tbody>
+                            <tbody id="console"></tbody>
                         </table>
                     </div>
                 </article>
@@ -117,11 +111,14 @@
                 <article class="pane details-pane">
                     <h3>Hook Details</h3>
                     <div class="pane-content">
-                        <textarea
+                        <table
                             class="details-textarea"
                             id="hook-details"
                             aria-label="Hook details"
-                        ></textarea>
+                        >
+                        <thead><td></td><td></td></thead>
+                        <tbody id="hooks"></tbody>
+                    </table>
                     </div>
                 </article>
             </section>

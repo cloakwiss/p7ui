@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cloakwiss/p7ui/src"
 	"github.com/go-chi/chi/v5"
 	"github.com/starfederation/datastar-go/datastar"
 )
@@ -15,119 +16,232 @@ import (
 var (
 	//go:embed ui/index.html
 	index []byte
-
 	//go:embed ui/style.css
 	style []byte
-
 	//go:embed ui/datastar.js
 	datastarScript []byte
-
 	//go:embed ui/drag.js
 	drag []byte
 )
 
-const port = 1337
+const port = 13337
 
 type (
 	target struct {
 		Executable string `json:"target"`
 		Hookdll    string `json:"hook"`
 	}
-	data struct {
-		name, section string
+
+	channelBundleSink struct {
+		logC  <-chan string
+		dataC <-chan string
+	}
+
+	channelBundleSource struct {
+		logC  chan<- string
+		dataC chan<- string
 	}
 )
 
+func createChannelBundle() (channelBundleSource, channelBundleSink) {
+	var (
+		logC  = make(chan string)
+		dataC = make(chan string)
+	)
+	return channelBundleSource{logC, dataC}, channelBundleSink{logC, dataC}
+}
+
 func main() {
-	router := chi.NewRouter()
+	for {
+		func() {
 
-	{ // assets
-		router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Write(index)
-		})
+			var (
+				closing      = make(chan struct{})
+				source, sink = createChannelBundle()
 
-		router.Get("/style.css", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Add("Content-Type", "text/css")
-			w.Write(style)
-		})
+				router = chi.NewRouter()
 
-		router.Get("/datastar.js", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
-			w.Write(datastarScript)
-		})
+				logger = src.NewLogger(source.logC, closing)
+				app    = src.ApplicationState{
+					Log:           logger,
+					IsCoreRunning: false,
+					InPipeName:    `\\.\pipe\P7_HOOKS`,
+					OutPipeName:   `\\.\pipe\P7_CONTROLS`,
+				}
+			)
 
-		router.Get("/drag.js", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
-			w.Write(drag)
-		})
-	}
+			{ // assets
+				router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+					w.Write(index)
+				})
 
-	var dataChan = make(chan data)
-	var closing = make(chan bool, 1)
+				router.Get("/style.css", func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Add("Content-Type", "text/css")
+					w.Write(style)
+				})
 
-	router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
-		var target = target{}
+				router.Get("/datastar.js", func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
+					w.Write(datastarScript)
+				})
 
-		defer r.Body.Close()
+				router.Get("/drag.js", func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
+					w.Write(drag)
+				})
+			}
+			{ // routes
+				router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
+					var target = target{}
 
-		if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
-			log.Println("Decode failed:", err)
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
-			return
-		}
+					defer r.Body.Close()
 
-		log.Printf("Data: %+v", target)
-	})
+					if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
+						log.Println("Decode failed:", err)
+						http.Error(w, "Invalid JSON", http.StatusBadRequest)
+						return
+					}
+					// valid the target data
+					if target.Executable == "" {
+						app.Log.Error("Target not Picked.")
+					} else {
+						app.TargetPath = target.Executable
+					}
 
-	router.Post("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
-		mainLoop(w, r, dataChan)
-	})
+					if target.Hookdll == "" {
+						app.Log.Error("Hookdll not Picked.")
+					} else {
+						app.HookDllPath = target.Hookdll
+					}
 
-	router.Post("/stop", func(w http.ResponseWriter, r *http.Request) {
-		closing <- true
-	})
+					log.Printf("Data: %+v", target)
+				})
 
-	log.Printf("Starting server on http://localhost:%d", port)
+				router.Post("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
 
-	go feedChannel(dataChan, closing)
+					if app.TargetPath != "" && app.HookDllPath != "" {
+						if !app.IsCoreRunning {
+							go src.Launch(&app, source.dataC)
+						} else {
+							app.Log.Error("Already Running a P7 instance.")
+						}
+					} else {
+						app.Log.Fatal("Target Path and HookDll path is empty.")
+					}
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
-		panic(err)
+					mainLoop(w, r, closing, sink)
+				})
+
+				router.Post("/stop", func(w http.ResponseWriter, r *http.Request) {
+					app.Log.Info("Stop clicked")
+					SendControl(&app, src.Stop)
+					close(closing)
+				})
+
+				router.Post("/resume", func(w http.ResponseWriter, r *http.Request) {
+					app.Log.Info("Resume clicked")
+					SendControl(&app, src.Resume)
+				})
+				router.Post("/abort", func(w http.ResponseWriter, r *http.Request) {
+					app.Log.Info("Abort clicked")
+					SendControl(&app, src.Abort)
+				})
+				router.Post("/step", func(w http.ResponseWriter, r *http.Request) {
+					app.Log.Info("Step clicked")
+
+					if app.StepState {
+						SendControl(&app, src.STEC)
+					} else {
+						SendControl(&app, src.STSC)
+					}
+
+					// To alter step to start at end of calls
+					app.StepState = !app.StepState
+				})
+				router.Post("/stec", func(w http.ResponseWriter, r *http.Request) {
+					app.Log.Info("STEC clicked")
+					SendControl(&app, src.STEC)
+
+					// To properly fall into the next call start
+					app.StepState = false
+				})
+				router.Post("/stsc", func(w http.ResponseWriter, r *http.Request) {
+					app.Log.Info("STSC clicked")
+					SendControl(&app, src.STSC)
+
+					// To properly fall into the next call end
+					app.StepState = true
+				})
+			}
+
+			log.Printf("Starting server on http://localhost:%d", port)
+
+			server := http.Server{
+				Addr:    fmt.Sprintf(":%d", port),
+				Handler: router,
+			}
+
+			go server.ListenAndServe()
+
+			<-closing
+			app.Log.Info("Closing the app.")
+			// I dont know why this grace period
+			// just felt like
+			time.Sleep(500 * time.Millisecond)
+			server.Close()
+		}()
 	}
 }
 
-func mainLoop(w http.ResponseWriter, r *http.Request, dataChan <-chan data) {
+func mainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, bundle channelBundleSink) {
 	sse := datastar.NewSSE(w, r)
 	modeOpt := datastar.WithModeAppend()
-	container := datastar.WithSelectorID("table-body")
-	for message := range dataChan {
-		formatted := fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", message.name, message.section)
-		if err := sse.PatchElements(formatted, modeOpt, container); err != nil {
-			return
-		}
-	}
-
-}
-
-func feedChannel(dataChan chan<- data, control chan bool) {
-	const message = "Hello, world!"
-	i := 0
-main:
+	container1 := datastar.WithSelectorID("console")
+	container2 := datastar.WithSelectorID("hooks")
 	for {
 		select {
 		case <-control:
-			break main
-		default:
+			return
+		case logLine := <-bundle.logC:
 			{
-				time.Sleep(250 * time.Millisecond)
-				if i < len(message) {
-					dataChan <- data{message, message}
-				} else {
-					dataChan <- data{message, message}
+				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", logLine)
+				if err := sse.PatchElements(formatted, modeOpt, container1); err != nil {
+					return
 				}
-				i++
+			}
+		case data := <-bundle.dataC:
+			{
+				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", data)
+				if err := sse.PatchElements(formatted, modeOpt, container2); err != nil {
+					return
+				}
 			}
 		}
 	}
-	close(control)
+}
+
+func SendControl(p7 *src.ApplicationState, controlSignal src.Control) {
+
+	if p7.OutPipe != nil {
+		b := []byte{byte(controlSignal)}
+		//TODO: why this go routine, it fells like channel
+		// can do it
+		go func() {
+			_, err := p7.OutPipe.Write(b)
+
+			if err != nil {
+				p7.Log.Error("Write error: %v\n", err)
+			}
+			// } else {
+			// 	p7.Log.Debug("Wrote Signal %d", controlSignal)
+			// }
+		}()
+
+	} else {
+		if !p7.IsCoreRunning && (p7.OutPipe == nil) {
+			p7.Log.Error("P7 is not running")
+		} else if p7.OutPipe == nil {
+			p7.Log.Error("OutPipe is not connected")
+		}
+	}
 }

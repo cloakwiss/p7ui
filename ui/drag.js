@@ -44,8 +44,8 @@ const toggleButton = document.getElementById("toggle-detail");
 
 new DragResizer(resizeHandle, contentArea);
 
-toggleButton.addEventListener("click", () => {
-  const isShown = contentArea.dataset.showConsole === "true";
-  contentArea.dataset.showConsole = isShown ? "false" : "true";
-  toggleButton.textContent = isShown ? "Show Details" : "Hide Details";
-});
+// toggleButton.addEventListener("click", () => {
+//   const isShown = contentArea.dataset.showConsole === "true";
+//   contentArea.dataset.showConsole = isShown ? "false" : "true";
+//   toggleButton.textContent = isShown ? "Show Details" : "Hide Details";
+// });
