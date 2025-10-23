@@ -117,7 +117,7 @@ body {
             grid-template-columns: 100%;
             transition: grid-template-columns 0.3s ease;
 
-            &[data-show-console="true"] {
+            &[data-toshow-console="true"] {
                 grid-template-columns: clamp(
                         25%,
                         var(--console-width, 480px),
@@ -129,7 +129,7 @@ body {
                 }
             }
 
-            &:not([data-show-console="true"]) {
+            &:not([data-toshow-console="true"]) {
                 & article.console-pane,
                 & div.resize-handle {
                     display: none;

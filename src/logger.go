@@ -7,7 +7,7 @@ import (
 
 type LogLevel string
 
-const ConsoleId string = "console-output"
+// const ConsoleId string = "console-output"
 
 const (
 	LevelInfo  LogLevel = "INFO"
@@ -26,12 +26,15 @@ func NewLogger(logChan chan<- string, control <-chan struct{}) Logger {
 }
 
 func (l *Logger) log(level LogLevel, msg string, args ...any) {
-	timestamp := time.Now().Format("15:04:05")
-	line := fmt.Sprintf("\n[%s] %-5s: %s\n", timestamp, level, fmt.Sprintf(msg, args...))
+	select {
+	case <-l.close:
+		return
+	default:
+		timestamp := time.Now().Format("15:04:05")
+		line := fmt.Sprintf("\n[%s] %-5s: %s\n", timestamp, level, fmt.Sprintf(msg, args...))
 
-	fmt.Print(line)
-	// hope this mitigates go routine leak
-	if _, ok := <-l.close; ok {
+		fmt.Print(line)
+		// hope this mitigates go routine leak
 		l.logChan <- line
 	}
 }

@@ -45,8 +45,8 @@ type (
 
 func createChannelBundle() (channelBundleSource, channelBundleSink) {
 	var (
-		logC  = make(chan string)
-		dataC = make(chan string)
+		logC  = make(chan string, 1000)
+		dataC = make(chan string, 1000)
 	)
 	return channelBundleSource{logC, dataC}, channelBundleSink{logC, dataC}
 }
@@ -118,10 +118,10 @@ func main() {
 				})
 
 				router.Post("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
-
 					if app.TargetPath != "" && app.HookDllPath != "" {
 						if !app.IsCoreRunning {
 							go src.Launch(&app, source.dataC)
+							app.Log.Info("UI Started")
 						} else {
 							app.Log.Error("Already Running a P7 instance.")
 						}
@@ -184,16 +184,19 @@ func main() {
 			go server.ListenAndServe()
 
 			<-closing
+
+			log.Println("Closing the app")
 			app.Log.Info("Closing the app.")
 			// I dont know why this grace period
 			// just felt like
 			time.Sleep(500 * time.Millisecond)
 			server.Close()
+
 		}()
 	}
 }
 
-func mainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, bundle channelBundleSink) {
+func mainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, sink channelBundleSink) {
 	sse := datastar.NewSSE(w, r)
 	modeOpt := datastar.WithModeAppend()
 	container1 := datastar.WithSelectorID("console")
@@ -202,14 +205,14 @@ func mainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, b
 		select {
 		case <-control:
 			return
-		case logLine := <-bundle.logC:
+		case logLine := <-sink.logC:
 			{
 				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", logLine)
 				if err := sse.PatchElements(formatted, modeOpt, container1); err != nil {
 					return
 				}
 			}
-		case data := <-bundle.dataC:
+		case data := <-sink.dataC:
 			{
 				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", data)
 				if err := sse.PatchElements(formatted, modeOpt, container2); err != nil {
@@ -244,4 +247,5 @@ func SendControl(p7 *src.ApplicationState, controlSignal src.Control) {
 			p7.Log.Error("OutPipe is not connected")
 		}
 	}
+	log.Println("Sent Control")
 }
