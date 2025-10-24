@@ -3,7 +3,6 @@ package src
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"os/exec"
 	"runtime"
 	"time"
@@ -11,7 +10,7 @@ import (
 	"github.com/Microsoft/go-winio"
 )
 
-func handleClient(p7 *ApplicationState, dataC chan<- string, conn any) {
+func handleClient(p7 *ApplicationState, dataC chan<- HookData, conn any) {
 
 	defer func() {
 		if c, ok := conn.(interface{ Close() error }); ok {
@@ -26,14 +25,13 @@ func handleClient(p7 *ApplicationState, dataC chan<- string, conn any) {
 	}
 
 	scanner := bufio.NewScanner(reader)
-	i := 0
+	lines := make([]string, 0, 8)
 	for scanner.Scan() {
 		text := scanner.Text()
-
-		dataC <- fmt.Sprintf("\"%d\": %s\n", i, text)
-
-		i += 1
+		lines = append(lines, text)
 	}
+
+	dataC <- HookData{lines}
 
 	if err := scanner.Err(); err != nil {
 		p7.Log.Error("Read error: %v", err)
@@ -43,7 +41,7 @@ func handleClient(p7 *ApplicationState, dataC chan<- string, conn any) {
 // ---------------------------------------------------------------------------------------------- //
 
 // Spawning the core system --------------------------------------------------------------------- //
-func Launch(p7 *ApplicationState, dataC chan<- string) {
+func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 	InjectDLL(p7)
 	defer RemoveDLL(p7)
 

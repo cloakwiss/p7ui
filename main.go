@@ -10,7 +10,6 @@ import (
 
 	"github.com/cloakwiss/p7ui/src"
 	"github.com/go-chi/chi/v5"
-	"github.com/starfederation/datastar-go/datastar"
 )
 
 var (
@@ -31,25 +30,7 @@ type (
 		Executable string `json:"target"`
 		Hookdll    string `json:"hook"`
 	}
-
-	channelBundleSink struct {
-		logC  <-chan string
-		dataC <-chan string
-	}
-
-	channelBundleSource struct {
-		logC  chan<- string
-		dataC chan<- string
-	}
 )
-
-func createChannelBundle() (channelBundleSource, channelBundleSink) {
-	var (
-		logC  = make(chan string, 1000)
-		dataC = make(chan string, 1000)
-	)
-	return channelBundleSource{logC, dataC}, channelBundleSink{logC, dataC}
-}
 
 func main() {
 	for {
@@ -57,11 +38,11 @@ func main() {
 
 			var (
 				closing      = make(chan struct{})
-				source, sink = createChannelBundle()
+				source, sink = src.CreateChannelBundle()
 
 				router = chi.NewRouter()
 
-				logger = src.NewLogger(source.logC, closing)
+				logger = src.NewLogger(source.LogC, closing)
 				app    = src.ApplicationState{
 					Log:           logger,
 					IsCoreRunning: false,
@@ -120,7 +101,7 @@ func main() {
 				router.Post("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
 					if app.TargetPath != "" && app.HookDllPath != "" {
 						if !app.IsCoreRunning {
-							go src.Launch(&app, source.dataC)
+							go src.Launch(&app, source.DataC)
 							app.Log.Info("UI Started")
 						} else {
 							app.Log.Error("Already Running a P7 instance.")
@@ -129,30 +110,30 @@ func main() {
 						app.Log.Fatal("Target Path and HookDll path is empty.")
 					}
 
-					mainLoop(w, r, closing, sink)
+					src.MainLoop(w, r, closing, sink)
 				})
 
 				router.Post("/stop", func(w http.ResponseWriter, r *http.Request) {
 					app.Log.Info("Stop clicked")
-					SendControl(&app, src.Stop)
+					src.SendControl(&app, src.Stop)
 					close(closing)
 				})
 
 				router.Post("/resume", func(w http.ResponseWriter, r *http.Request) {
 					app.Log.Info("Resume clicked")
-					SendControl(&app, src.Resume)
+					src.SendControl(&app, src.Resume)
 				})
 				router.Post("/abort", func(w http.ResponseWriter, r *http.Request) {
 					app.Log.Info("Abort clicked")
-					SendControl(&app, src.Abort)
+					src.SendControl(&app, src.Abort)
 				})
 				router.Post("/step", func(w http.ResponseWriter, r *http.Request) {
 					app.Log.Info("Step clicked")
 
 					if app.StepState {
-						SendControl(&app, src.STEC)
+						src.SendControl(&app, src.STEC)
 					} else {
-						SendControl(&app, src.STSC)
+						src.SendControl(&app, src.STSC)
 					}
 
 					// To alter step to start at end of calls
@@ -160,14 +141,14 @@ func main() {
 				})
 				router.Post("/stec", func(w http.ResponseWriter, r *http.Request) {
 					app.Log.Info("STEC clicked")
-					SendControl(&app, src.STEC)
+					src.SendControl(&app, src.STEC)
 
 					// To properly fall into the next call start
 					app.StepState = false
 				})
 				router.Post("/stsc", func(w http.ResponseWriter, r *http.Request) {
 					app.Log.Info("STSC clicked")
-					SendControl(&app, src.STSC)
+					src.SendControl(&app, src.STSC)
 
 					// To properly fall into the next call end
 					app.StepState = true
@@ -194,58 +175,4 @@ func main() {
 
 		}()
 	}
-}
-
-func mainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, sink channelBundleSink) {
-	sse := datastar.NewSSE(w, r)
-	modeOpt := datastar.WithModeAppend()
-	container1 := datastar.WithSelectorID("console")
-	container2 := datastar.WithSelectorID("hooks")
-	for {
-		select {
-		case <-control:
-			return
-		case logLine := <-sink.logC:
-			{
-				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", logLine)
-				if err := sse.PatchElements(formatted, modeOpt, container1); err != nil {
-					return
-				}
-			}
-		case data := <-sink.dataC:
-			{
-				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", data)
-				if err := sse.PatchElements(formatted, modeOpt, container2); err != nil {
-					return
-				}
-			}
-		}
-	}
-}
-
-func SendControl(p7 *src.ApplicationState, controlSignal src.Control) {
-
-	if p7.OutPipe != nil {
-		b := []byte{byte(controlSignal)}
-		//TODO: why this go routine, it fells like channel
-		// can do it
-		go func() {
-			_, err := p7.OutPipe.Write(b)
-
-			if err != nil {
-				p7.Log.Error("Write error: %v\n", err)
-			}
-			// } else {
-			// 	p7.Log.Debug("Wrote Signal %d", controlSignal)
-			// }
-		}()
-
-	} else {
-		if !p7.IsCoreRunning && (p7.OutPipe == nil) {
-			p7.Log.Error("P7 is not running")
-		} else if p7.OutPipe == nil {
-			p7.Log.Error("OutPipe is not connected")
-		}
-	}
-	log.Println("Sent Control")
 }
