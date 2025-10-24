@@ -1,11 +1,12 @@
 package src
 
 import (
+	"errors"
 	"fmt"
 	"os/exec"
 )
 
-const InjecterEXE string = "../builds/debug/main.exe"
+const InjecterEXE string = "D:/projects/project-seven/builds/debug/main.exe"
 
 func InjectDLL(p7 *ApplicationState) {
 	HookdllPath := fmt.Sprintf("-d%s", p7.HookDllPath)
@@ -18,9 +19,10 @@ func InjectDLL(p7 *ApplicationState) {
 	)
 
 	output, err := spawn.CombinedOutput()
-	p7.Log.Info("InjectDLL Output: \n%s", output)
+	// This just any ugly hack
+	p7.Log.InfoWithPayload("InjectDLL Output:", errors.New(string(output)))
 	if err != nil {
-		p7.Log.Fatal("InjectDLL Spawn Failed for some reason %v", err)
+		p7.Log.FatalWithPayload("InjectDLL Spawn Failed for some reason", err)
 	}
 }
 
@@ -33,8 +35,8 @@ func RemoveDLL(p7 *ApplicationState) {
 	)
 
 	output, err := spawn.CombinedOutput()
-	p7.Log.Info("RemoveDLL Output: \n%s", output)
+	p7.Log.InfoWithPayload("RemoveDLL Output:", errors.New(string(output)))
 	if err != nil {
-		p7.Log.Fatal("RemoveDLL Spawn Failed for some reason %v", err)
+		p7.Log.FatalWithPayload("RemoveDLL Spawn Failed for some reason %v", err)
 	}
 }

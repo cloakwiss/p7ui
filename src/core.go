@@ -3,6 +3,7 @@ package src
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"os/exec"
 	"runtime"
 	"time"
@@ -34,7 +35,7 @@ func handleClient(p7 *ApplicationState, dataC chan<- HookData, conn any) {
 	dataC <- HookData{lines}
 
 	if err := scanner.Err(); err != nil {
-		p7.Log.Error("Read error: %v", err)
+		p7.Log.ErrorWithPayload("Read error", err)
 	}
 }
 
@@ -57,7 +58,7 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 
 	listener, err := winio.ListenPipe(p7.InPipeName, pipeCfg)
 	if err != nil {
-		p7.Log.Fatal("Failed to create pipe: %v", err)
+		p7.Log.FatalWithPayload("Failed to create pipe", err)
 	}
 	defer listener.Close()
 
@@ -72,7 +73,7 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 				p7.Log.Info("Connected the control pipe")
 				break
 			}
-			p7.Log.Error("Couldn't connect control pipe retrying: %v", err)
+			p7.Log.ErrorWithPayload("Couldn't connect control pipe retrying", err)
 			time.Sleep(500 * time.Millisecond)
 		}
 	}()
@@ -83,30 +84,30 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 
 		stdoutPipe, err := spawn.StdoutPipe()
 		if err != nil {
-			p7.Log.Fatal("Failed to get stdout pipe: %v", err)
+			p7.Log.FatalWithPayload("Failed to get stdout pipe", err)
 			return
 		}
 		stderrPipe, err := spawn.StderrPipe()
 		if err != nil {
-			p7.Log.Fatal("Failed to get stderr pipe: %v", err)
+			p7.Log.FatalWithPayload("Failed to get stderr pipe", err)
 			return
 		}
 
 		if err := spawn.Start(); err != nil {
-			p7.Log.Fatal("Target Spawn Failed to start: %v", err)
+			p7.Log.FatalWithPayload("Target Spawn Failed to start", err)
 			cancel()
 		}
 
-		p7.Log.Info("Target Output:")
+		p7.Log.Info("Target Output")
 
 		// Stdout Handling
 		go func() {
 			scanner := bufio.NewScanner(stdoutPipe)
 			for scanner.Scan() {
-				p7.Log.Info("[STDOUT] %s", scanner.Text())
+				p7.Log.Info(fmt.Sprintf("[STDOUT] %s", scanner.Text()))
 			}
 			if err := scanner.Err(); err != nil {
-				p7.Log.Error("Stdout scan error: %v", err)
+				p7.Log.ErrorWithPayload("Stdout scan error", err)
 			}
 		}()
 
@@ -114,15 +115,15 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 		go func() {
 			scanner := bufio.NewScanner(stderrPipe)
 			for scanner.Scan() {
-				p7.Log.Error("[STDERR] %s", scanner.Text())
+				p7.Log.Error(fmt.Sprintf("[STDERR] %s", scanner.Text()))
 			}
 			if err := scanner.Err(); err != nil {
-				p7.Log.Error("Stderr scan error: %v", err)
+				p7.Log.ErrorWithPayload("Stderr scan error", err)
 			}
 		}()
 
 		if err := spawn.Wait(); err != nil {
-			p7.Log.Fatal("Target Spawn Failed: %v", err)
+			p7.Log.FatalWithPayload("Target Spawn Failed", err)
 		}
 
 		cancel()
@@ -135,7 +136,7 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 			p7.Log.Debug("Looking for hook senders")
 			conn, err := listener.Accept()
 			if err != nil {
-				p7.Log.Info("Listener stopped: %v", err)
+				p7.Log.InfoWithPayload("Listener stopped", err)
 				return
 			} else {
 				p7.Log.Debug("Listener Connected")

@@ -10,8 +10,9 @@ import (
 
 type (
 	LogLine struct {
-		timestamp, msg string
-		level          LogLevel
+		timestamp    string
+		level        LogLevel
+		msg, payload string
 	}
 
 	HookData struct {
@@ -30,7 +31,27 @@ type (
 )
 
 func NewLogLine(timestamp string, level LogLevel, msg string) LogLine {
-	return LogLine{timestamp, msg, level}
+	return LogLine{timestamp, level, msg, ""}
+}
+
+func NewLogLineWithPayload(timestamp string, level LogLevel, msg string, payload string) LogLine {
+	return LogLine{timestamp, level, msg, payload}
+}
+
+func (l LogLine) String() string {
+	if l.payload == "" {
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n", l.timestamp, l.level, l.msg)
+	} else {
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td><details><summary>%s</summary>%s</details></td></tr>\n", l.timestamp, l.level, l.msg, l.payload)
+	}
+}
+
+func (h HookData) String() string {
+	var lines string
+	for i, line := range h.lines {
+		lines += fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>\n", i, line)
+	}
+	return lines
 }
 
 func CreateChannelBundle() (ChannelBundleSource, ChannelBundleSink) {
@@ -52,15 +73,13 @@ func MainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, s
 			return
 		case logLine := <-sink.LogC:
 			{
-				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", logLine)
-				if err := sse.PatchElements(formatted, modeOpt, container1); err != nil {
+				if err := sse.PatchElements(logLine.String(), modeOpt, container1); err != nil {
 					return
 				}
 			}
 		case data := <-sink.DataC:
 			{
-				formatted := fmt.Sprintf("<tr><td>%s</td></tr>\n", data)
-				if err := sse.PatchElements(formatted, modeOpt, container2); err != nil {
+				if err := sse.PatchElements(data.String(), modeOpt, container2); err != nil {
 					return
 				}
 			}
@@ -78,7 +97,7 @@ func SendControl(p7 *ApplicationState, controlSignal Control) {
 			_, err := p7.OutPipe.Write(b)
 
 			if err != nil {
-				p7.Log.Error("Write error: %v\n", err)
+				p7.Log.ErrorWithPayload("Write error: %v\n", err)
 			}
 			// } else {
 			// 	p7.Log.Debug("Wrote Signal %d", controlSignal)
