@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-const InjecterEXE string = "D:/projects/project-seven/builds/debug/main.exe"
+const InjecterEXE string = "../builds/debug/main.exe"
 
 func InjectDLL(p7 *ApplicationState) {
 	HookdllPath := fmt.Sprintf("-d%s", p7.HookDllPath)

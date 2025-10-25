@@ -11,11 +11,12 @@
             <aside class="control-panel">
                 <h2>Control Panel</h2>
 
-                <form class="input-group">
+                <form class="input-group" autocomplete="on">
                     <label for="target_path">Target Executable</label>
                     <input
                         required
                         autocomplete="on"
+                        name="target"
                         type="text"
                         id="target_path"
                         placeholder="Selected target executable path will appear here"
@@ -28,6 +29,7 @@
                     <input
                         required
                         autocomplete="on"
+                        name="hookdll"
                         type="text"
                         id="hookdll_path"
                         placeholder="Selected hookdll will appear here"
@@ -49,6 +51,13 @@
                     <button
                         type="button"
                         class="secondary"
+                        data-on-click="@post('/step')"
+                    >
+                        Step
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
                         data-on-click="@post('/stop')"
                     >
                         Stop
@@ -66,13 +75,6 @@
                         data-on-click="@post('/abort')"
                     >
                         Abort
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/step')"
-                    >
-                        Step
                     </button>
                     <button
                         type="button"
@@ -104,31 +106,25 @@
                     <div class="pane-content">
                         <table class="console-table">
                             <thead>
-                                <td>Time</td>
-                                <td>Level</td>
-                                <td>Log</td>
+                                <th>Time</th>
+                                <th>Level</th>
+                                <th>Log</th>
                             </thead>
                             <tbody id="console"></tbody>
                         </table>
                     </div>
                 </article>
-
                 <div class="resize-handle" id="resize-handle"></div>
-
                 <article class="pane details-pane">
                     <h3>Hook Details</h3>
                     <div class="pane-content">
                         <table
-                            class="details-textarea"
+                            class="console-table"
                             id="hook-details"
                             aria-label="Hook details"
                         >
-                        <thead>
-                            <td></td>
-                            <td></td>
-                        </thead>
-                        <tbody id="hooks"></tbody>
-                    </table>
+                            <tbody id="hooks"></tbody>
+                        </table>
                     </div>
                 </article>
             </section>

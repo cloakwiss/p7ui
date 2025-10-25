@@ -49,7 +49,7 @@ func (l LogLine) String() string {
 func (h HookData) String() string {
 	var lines string
 	for i, line := range h.lines {
-		lines += fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>\n", i, line)
+		lines += fmt.Sprintf("<tr><td>%d</td><td><code>%s</code></td></tr>\n", i, line)
 	}
 	return lines
 }
