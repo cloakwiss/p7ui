@@ -1,0 +1,26 @@
+{
+  "short_name": "BinStop",
+  "name": "BinStop",
+  "icons": [
+    {
+      "src": "/64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "black",
+  "background_color": "black",
+  "prefered_related_application": "false"
+}

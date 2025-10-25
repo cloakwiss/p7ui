@@ -13,6 +13,17 @@ import (
 )
 
 var (
+
+	//go:embed ui/64.png
+	l64 []byte
+	//go:embed ui/128.png
+	l128 []byte
+	//go:embed ui/256.png
+	l256 []byte
+
+	//go:embed ui/manifest.json
+	manifest []byte
+
 	//go:embed ui/index.html
 	index []byte
 	//go:embed ui/style.css
@@ -54,6 +65,26 @@ func main() {
 			{ // assets
 				router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 					w.Write(index)
+				})
+
+				router.Get("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Add("Content-Type", "text/json")
+					w.Write(manifest)
+				})
+
+				router.Get("/256.png", func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Add("Content-Type", "image/png")
+					w.Write(l256)
+				})
+
+				router.Get("/128.png", func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Add("Content-Type", "image/png")
+					w.Write(l128)
+				})
+
+				router.Get("/64.png", func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Add("Content-Type", "image/png")
+					w.Write(l64)
 				})
 
 				router.Get("/style.css", func(w http.ResponseWriter, r *http.Request) {
