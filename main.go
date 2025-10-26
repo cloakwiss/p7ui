@@ -129,7 +129,7 @@ func main() {
 					log.Printf("Data: %+v", target)
 				})
 
-				router.Post("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
+				router.Get("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
 					if app.TargetPath != "" && app.HookDllPath != "" {
 						if !app.IsCoreRunning {
 							go src.Launch(&app, source.DataC)

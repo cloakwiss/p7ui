@@ -45,7 +45,9 @@
                     <button
                         type="button"
                         class="secondary"
-                        data-on-click="@post('/spawnp7')"
+                        data-indicator:_fetching
+                        data-attr:disabled="$_fetching"
+                        data-on-click="@get('/spawnp7')"
                     >
                         Start
                     </button>

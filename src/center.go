@@ -42,14 +42,14 @@ func (l LogLine) String() string {
 	if l.payload == "" {
 		return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n", l.timestamp, l.level, l.msg)
 	} else {
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td><details><summary>%s</summary>%s</details></td></tr>\n", l.timestamp, l.level, l.msg, l.payload)
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s:\n%s</td></tr>\n", l.timestamp, l.level, l.msg, l.payload)
 	}
 }
 
 func (h HookData) String() string {
 	var lines string
 	for i, line := range h.lines {
-		lines += fmt.Sprintf("<tr><td>%d</td><td><code>%s</code></td></tr>\n", i, line)
+		lines += fmt.Sprintf("<tr><td>%d</td><td><pre>%s</pre></td></tr>\n", i+1, line)
 	}
 	return lines
 }
@@ -74,13 +74,13 @@ func MainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, s
 		case logLine := <-sink.LogC:
 			{
 				if err := sse.PatchElements(logLine.String(), modeOpt, container1); err != nil {
-					return
+					log.Panicf("LogC: %s", err)
 				}
 			}
 		case data := <-sink.DataC:
 			{
 				if err := sse.PatchElements(data.String(), modeOpt, container2); err != nil {
-					return
+					log.Panicf("LogC: %s", err)
 				}
 			}
 		}

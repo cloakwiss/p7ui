@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"runtime"
 	"time"
@@ -11,28 +12,79 @@ import (
 	"github.com/Microsoft/go-winio"
 )
 
-func handleClient(p7 *ApplicationState, dataC chan<- HookData, conn any) {
+// HookData is assumed to be defined elsewhere, e.g., type HookData struct { Lines []string }
 
-	defer func() {
-		if c, ok := conn.(interface{ Close() error }); ok {
-			c.Close()
+// readAndBatch accepts a bufio.Scanner and batches lines based on a pause (timeout).
+func readAndBatch(scanner *bufio.Scanner, dataC chan<- HookData, timeout time.Duration) {
+
+	// 1. Channel for individual lines
+	// This is still necessary to decouple the blocking Scan() from the select logic.
+	lineC := make(chan string)
+
+	// 2. Start the Scanner Goroutine (Blocking I/O)
+	// This goroutine performs the blocking scan and sends lines immediately.
+	go func() {
+		// The loop uses the provided scanner directly.
+		for scanner.Scan() {
+			lineC <- scanner.Text()
 		}
+		close(lineC) // Signal EOF/Error to the main logic
+
+		// Optional: Check and handle scanner errors
+		// if err := scanner.Err(); err != nil {
+		//     // Log or send error notification
+		// }
 	}()
 
-	reader, ok := conn.(interface{ Read([]byte) (int, error) })
-	if !ok {
-		p7.Log.Error("Invalid connection type")
-		return
-	}
-
-	scanner := bufio.NewScanner(reader)
+	// 3. Main Logic (Non-Blocking Batching)
 	lines := make([]string, 0, 8)
-	for scanner.Scan() {
-		text := scanner.Text()
-		lines = append(lines, text)
-	}
+	timer := time.NewTimer(timeout)
 
-	dataC <- HookData{lines}
+	for {
+		// Reset the timer for the select statement
+		var timerC <-chan time.Time
+		if len(lines) > 0 {
+			// Enable the timeout case only if we have buffered data.
+			timer.Reset(timeout)
+			timerC = timer.C
+		} else {
+			// If buffer is empty, disable the timer channel to wait indefinitely for the first line.
+			timerC = nil
+		}
+
+		select {
+		case line, isOpen := <-lineC:
+			if !isOpen {
+				// The scanner goroutine closed the channel (EOF/Error).
+				// Send any remaining data and then exit.
+				if len(lines) > 0 {
+					dataC <- HookData{lines}
+				}
+				return
+			}
+
+			// A line arrived: add it to the buffer.
+			lines = append(lines, line)
+
+		case <-timerC:
+			// Timeout hit: no new lines arrived for 'timeout' duration.
+			// Send the collected burst and reset the buffer.
+			dataC <- HookData{lines}
+			lines = make([]string, 0, 8)
+		}
+	}
+}
+
+func handleClient(p7 *ApplicationState, dataC chan<- HookData, conn io.ReadCloser) {
+	p7.Log.Debug("Started handle client")
+
+	defer func() {
+		conn.Close()
+	}()
+
+	scanner := bufio.NewScanner(conn)
+
+	readAndBatch(scanner, dataC, time.Millisecond*16)
 
 	if err := scanner.Err(); err != nil {
 		p7.Log.ErrorWithPayload("Read error", err)
@@ -43,6 +95,7 @@ func handleClient(p7 *ApplicationState, dataC chan<- HookData, conn any) {
 
 // Spawning the core system --------------------------------------------------------------------- //
 func Launch(p7 *ApplicationState, dataC chan<- HookData) {
+	p7.Log.Debug("Started Launch")
 	InjectDLL(p7)
 	defer RemoveDLL(p7)
 

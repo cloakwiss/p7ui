@@ -26,23 +26,18 @@ func NewLogger(logChan chan<- LogLine, control <-chan struct{}) Logger {
 }
 
 func (l *Logger) log(level LogLevel, msg string, payload error) {
-	select {
-	case <-l.close:
-		return
-	default:
-		timestamp := time.Now().Format("15:04:05")
+	timestamp := time.Now().Format("15:04:05")
 
-		// hope this mitigates go routine leak
-		if payload == nil {
-			line := fmt.Sprintf("\n[%s] %-5s: %s\n", timestamp, level, msg)
-			fmt.Print(line)
-			l.logChan <- NewLogLine(timestamp, level, msg)
-		} else {
-			fullMsg := fmt.Sprintf(msg, payload)
-			line := fmt.Sprintf("\n[%s] %-5s: %s\n", timestamp, level, fullMsg)
-			fmt.Print(line)
-			l.logChan <- NewLogLineWithPayload(timestamp, level, msg, payload.Error())
-		}
+	// hope this mitigates go routine leak
+	if payload == nil {
+		line := fmt.Sprintf("\n[%s] %-5s: %s\n", timestamp, level, msg)
+		fmt.Print(line)
+		l.logChan <- NewLogLine(timestamp, level, msg)
+	} else {
+		fullMsg := fmt.Sprintf(msg, payload)
+		line := fmt.Sprintf("\n[%s] %-5s: %s\n", timestamp, level, fullMsg)
+		fmt.Print(line)
+		l.logChan <- NewLogLineWithPayload(timestamp, level, msg, payload.Error())
 	}
 }
 
