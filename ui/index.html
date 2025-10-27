@@ -10,8 +10,7 @@
     <body>
         <main class="app-container">
             <aside class="control-panel">
-                <h2>Control Panel</h2>
-
+                <h3>Control Panel</h3>
                 <form class="input-group" autocomplete="on">
                     <label for="target_path">Target Executable</label>
                     <input
@@ -47,16 +46,9 @@
                         class="secondary"
                         data-indicator:_fetching
                         data-attr:disabled="$_fetching"
-                        data-on-click="@get('/spawnp7')"
+                        data-on-click="@get('/spawnp7', {openWhenHidden: true})"
                     >
                         Start
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/step')"
-                    >
-                        Step
                     </button>
                     <button
                         type="button"
@@ -78,6 +70,13 @@
                         data-on-click="@post('/abort')"
                     >
                         Abort
+                    </button>
+                    <button
+                        type="button"
+                        class="secondary"
+                        data-on-click="@post('/step')"
+                    >
+                        Step
                     </button>
                     <button
                         type="button"
@@ -105,27 +104,59 @@
                 data-toshow-console="true"
             >
                 <article class="pane console-pane">
-                    <h3>Console Output</h3>
                     <div class="pane-content">
                         <table class="console-table">
+                            <caption>
+                                Console Output
+                            </caption>
                             <thead>
-                                <th>Time</th>
-                                <th>Level</th>
-                                <th>Log</th>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Level</th>
+                                    <th>Log</th>
+                                </tr>
                             </thead>
-                            <tbody id="console"></tbody>
+                            <tbody id="console">
+                                <tr>
+                                    <td>Time</td>
+                                    <td>Level</td>
+                                    <td>Log</td>
+                                </tr>
+                                <tr>
+                                    <td>Time</td>
+                                    <td>Level</td>
+                                    <td>Log</td>
+                                </tr>
+                                <tr>
+                                    <td>Time</td>
+                                    <td>Level</td>
+                                    <td>Log</td>
+                                </tr>
+                                <tr>
+                                    <td>Time</td>
+                                    <td>Level</td>
+                                    <td>Log</td>
+                                </tr>
+                                <tr>
+                                    <td>Time</td>
+                                    <td>Level</td>
+                                    <td>Log</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </article>
                 <div class="resize-handle" id="resize-handle"></div>
                 <article class="pane details-pane">
-                    <h3>Hook Details</h3>
                     <div class="pane-content">
                         <table
                             class="console-table"
                             id="hook-details"
                             aria-label="Hook details"
                         >
+                            <caption>
+                                Hook Details
+                            </caption>
                             <tbody id="hooks"></tbody>
                         </table>
                     </div>

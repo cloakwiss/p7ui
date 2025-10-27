@@ -30,24 +30,23 @@ body {
     & main.app-container {
         display: flex;
         height: 100vh;
-        padding: 20px;
-        gap: 20px;
+        padding: 8px;
+        gap: 4px;
 
         & aside.control-panel {
-            flex-shrink: 0;
-            width: clamp(200px, 15%, 300px);
+            flex-shrink: 1;
             background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 20px;
+            /*! border-radius: 7px; */
+            padding: 8px;
             box-shadow: 0 2px 8px var(--shadow);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
 
-            & h2 {
+            & h3 {
                 margin: 0;
                 color: var(--accent-color);
-                font-size: 1.5rem;
+                /*! font-size: 1.5rem; */
             }
 
             & form.input-group {
@@ -56,18 +55,18 @@ body {
                 gap: 5px;
 
                 & label {
-                    font-weight: 500;
+                    font-weight: 400;
                     color: var(--text-secondary);
-                    font-size: 0.9rem;
+                    /*! font-size: 0.9rem; */
                 }
 
                 & input {
-                    padding: 10px;
+                    padding: 6px;
                     background: var(--bg-tertiary);
                     border: 1px solid var(--border-color);
-                    border-radius: 4px;
+                    /*! border-radius: 4px; */
                     color: var(--text-primary);
-                    font-size: 0.95rem;
+                    /*! font-size: 0.95rem; */
 
                     &::placeholder {
                         color: var(--text-placeholder);
@@ -83,13 +82,13 @@ body {
             & nav.button-group {
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 6px;
 
                 & button {
-                    padding: 10px 20px;
+                    padding: 8px 12px;
                     background: var(--accent-color);
                     border: none;
-                    border-radius: 4px;
+                    /*! border-radius: 4px; */
                     color: var(--bg-primary);
                     font-weight: 600;
                     cursor: pointer;
@@ -115,42 +114,43 @@ body {
             flex: 1;
             min-width: 0;
             display: grid;
-            gap: 10px;
-            grid-template-columns: 100%;
+            gap: 3px;
+            /*! grid-template-columns: 100%; */
             transition: grid-template-columns 0.3s ease;
 
-            &[data-toshow-console="true"] {
-                grid-template-columns: clamp(
-                        25%,
-                        var(--console-width, 600px),
-                        75%
-                    ) 6px 1fr;
+            /*&[data-toshow-console="true"] {*/
+            grid-template-columns:
+                clamp(25%, var(--console-width, 600px), 75%)
+                6px 1fr;
 
-                & div.resize-handle {
-                    display: block;
-                }
+            & div.resize-handle {
+                display: block;
             }
+            /*} */
 
-            &:not([data-toshow-console="true"]) {
+            /*&:not([data-toshow-console="true"]) {
                 & article.console-pane,
                 & div.resize-handle {
                     display: none;
                 }
-            }
+            }*/
 
             & article.pane {
                 background: var(--bg-secondary);
-                border-radius: 8px;
-                padding: 20px;
+                /*! border-radius: 8px; */
+                padding: 6px;
                 box-shadow: 0 2px 8px var(--shadow);
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
                 overflow: hidden;
 
-                & h3 {
-                    margin: 0 0 15px 0;
+                & caption {
+                    font-weight: 650;
+                    margin: 4px, 16px;
                     color: var(--accent-color);
+                    caption-side: top;
+                    padding: 4px;
                     font-size: 1.2rem;
                     flex-shrink: 0;
                 }
@@ -162,8 +162,8 @@ body {
                     scroll-behavior: smooth;
                     background: var(--bg-primary);
                     border: 1px solid var(--border-color);
-                    border-radius: 4px;
-                    padding: 15px;
+                    /*! border-radius: 4px; */
+                    padding: 0px;
 
                     & table.console-table {
                         width: 100%;
@@ -175,40 +175,51 @@ body {
                             background: var(--bg-primary);
                             z-index: 1;
 
-                            & tr th{
+                            & tr th {
                                 text-align: left;
-                                padding: 8px;
+                                /*margin-inline-start: 2px;*/
+                                padding: 6px;
                                 font-weight: 600;
-                                background: color-mix(in oklch, var(--even-row) 55%, var(--bg-primary) 100%);
+                                background: color-mix(
+                                    in oklch,
+                                    var(--even-row) 55%,
+                                    var(--bg-primary) 100%
+                                );
                                 color: var(--accent-color);
                                 border-bottom: 2px solid var(--border-color);
                             }
 
-                            & td {
-                                padding: 8px;
+                            /*& td {
+                                padding: 2px 4px;
                                 border-bottom: 1px solid var(--border-color);
                                 text-align: left;
-                            }
-
+                            }*/
                         }
 
                         & tbody {
-
                             & tr:nth-child(even) {
-                                background: color-mix(in oklch, var(--even-row) 25%, var(--bg-primary) 100%);
+                                background-color: color-mix(
+                                    in oklch,
+                                    var(--even-row) 45%,
+                                    var(--bg-primary) 100%
+                                );
                             }
 
                             & tr:nth-child(odd) {
-                                background: color-mix(in oklch, var(--odd-row) 25%, var(--bg-primary) 100%);
+                                background-color: color-mix(
+                                    in oklch,
+                                    var(--odd-row) 45%,
+                                    var(--bg-primary) 100%
+                                );
                             }
 
                             & td {
                                 padding: 8px;
                                 border-bottom: 1px solid var(--border-color);
+                                /*margin-inline-start: 2px;*/
                                 text-align: left;
                             }
                         }
-
                     }
                 }
             }
@@ -217,9 +228,9 @@ body {
                 width: 6px;
                 background: var(--border-color);
                 cursor: col-resize;
-                border-radius: 2px;
+                /*! border-radius: 2px; */
                 transition: background 0.2s;
-                display: none;
+                /*display: none;*/
 
                 &:hover {
                     background: var(--accent-color);
