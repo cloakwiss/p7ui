@@ -20,9 +20,9 @@ func InjectDLL(p7 *ApplicationState) {
 
 	output, err := spawn.CombinedOutput()
 	// This just any ugly hack
-	p7.Log.InfoWithPayload("InjectDLL Output:", errors.New(string(output)))
+	p7.Log.Info("InjectDLL Output: %v", errors.New(string(output)))
 	if err != nil {
-		p7.Log.FatalWithPayload("InjectDLL Spawn Failed for some reason", err)
+		p7.Log.Fatal("InjectDLL Spawn Failed for some reason %v", err)
 	}
 }
 
@@ -35,8 +35,8 @@ func RemoveDLL(p7 *ApplicationState) {
 	)
 
 	output, err := spawn.CombinedOutput()
-	p7.Log.InfoWithPayload("RemoveDLL Output:", errors.New(string(output)))
+	p7.Log.Info("RemoveDLL Output: %s", string(output))
 	if err != nil {
-		p7.Log.FatalWithPayload("RemoveDLL Spawn Failed for some reason %v", err)
+		p7.Log.Fatal("RemoveDLL Spawn Failed for some reason %v", err)
 	}
 }

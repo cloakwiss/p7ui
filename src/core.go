@@ -3,8 +3,8 @@ package src
 import (
 	"bufio"
 	"context"
-	"fmt"
-	"io"
+	"encoding/hex"
+	"net"
 	"os/exec"
 	"runtime"
 	"time"
@@ -75,19 +75,27 @@ func readAndBatch(scanner *bufio.Scanner, dataC chan<- HookData, timeout time.Du
 	}
 }
 
-func handleClient(p7 *ApplicationState, dataC chan<- HookData, conn io.ReadCloser) {
+func handleClient(p7 *ApplicationState, dataC chan<- HookData, conn net.Conn) {
 	p7.Log.Debug("Started handle client")
 
-	defer func() {
-		conn.Close()
-	}()
+	defer conn.Close()
 
-	scanner := bufio.NewScanner(conn)
+	var (
+		buffer      = make([]byte, 1024*1024*1)
+		srno   uint = 1
+	)
 
-	readAndBatch(scanner, dataC, time.Millisecond*16)
-
-	if err := scanner.Err(); err != nil {
-		p7.Log.ErrorWithPayload("Read error", err)
+	for {
+		n, err := conn.Read(buffer)
+		if n > 0 {
+			dump := hex.Dump(buffer[:n])
+			dataC <- HookData{srno, dump}
+			srno += 1
+		}
+		if err != nil {
+			p7.Log.Error("Read error or EOF for hook: %v\n", err)
+			break
+		}
 	}
 }
 
@@ -111,7 +119,7 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 
 	listener, err := winio.ListenPipe(p7.InPipeName, pipeCfg)
 	if err != nil {
-		p7.Log.FatalWithPayload("Failed to create pipe", err)
+		p7.Log.Fatal("Failed to create pipe %v", err)
 	}
 	defer listener.Close()
 
@@ -126,7 +134,7 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 				p7.Log.Info("Connected the control pipe")
 				break
 			}
-			p7.Log.ErrorWithPayload("Couldn't connect control pipe retrying", err)
+			p7.Log.Error("Couldn't connect control pipe retrying %v", err)
 			time.Sleep(500 * time.Millisecond)
 		}
 	}()
@@ -137,17 +145,17 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 
 		stdoutPipe, err := spawn.StdoutPipe()
 		if err != nil {
-			p7.Log.FatalWithPayload("Failed to get stdout pipe", err)
+			p7.Log.Fatal("Failed to get stdout pipe %v", err)
 			return
 		}
 		stderrPipe, err := spawn.StderrPipe()
 		if err != nil {
-			p7.Log.FatalWithPayload("Failed to get stderr pipe", err)
+			p7.Log.Fatal("Failed to get stderr pipe %v", err)
 			return
 		}
 
 		if err := spawn.Start(); err != nil {
-			p7.Log.FatalWithPayload("Target Spawn Failed to start", err)
+			p7.Log.Fatal("Target Spawn Failed to start %v", err)
 			cancel()
 		}
 
@@ -157,10 +165,10 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 		go func() {
 			scanner := bufio.NewScanner(stdoutPipe)
 			for scanner.Scan() {
-				p7.Log.Info(fmt.Sprintf("[STDOUT] %s", scanner.Text()))
+				p7.Log.Info("[STDOUT] %s", scanner.Text())
 			}
 			if err := scanner.Err(); err != nil {
-				p7.Log.ErrorWithPayload("Stdout scan error", err)
+				p7.Log.Error("Stdout scan error %v", err)
 			}
 		}()
 
@@ -168,15 +176,15 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 		go func() {
 			scanner := bufio.NewScanner(stderrPipe)
 			for scanner.Scan() {
-				p7.Log.Error(fmt.Sprintf("[STDERR] %s", scanner.Text()))
+				p7.Log.Error("[STDERR] %s", scanner.Text())
 			}
 			if err := scanner.Err(); err != nil {
-				p7.Log.ErrorWithPayload("Stderr scan error", err)
+				p7.Log.Error("Stderr scan error %v", err)
 			}
 		}()
 
 		if err := spawn.Wait(); err != nil {
-			p7.Log.FatalWithPayload("Target Spawn Failed", err)
+			p7.Log.Fatal("Target Spawn Failed %v", err)
 		}
 
 		cancel()
@@ -189,7 +197,7 @@ func Launch(p7 *ApplicationState, dataC chan<- HookData) {
 			p7.Log.Debug("Looking for hook senders")
 			conn, err := listener.Accept()
 			if err != nil {
-				p7.Log.InfoWithPayload("Listener stopped", err)
+				p7.Log.Info("Listener stopped: %v", err)
 				return
 			} else {
 				p7.Log.Debug("Listener Connected")

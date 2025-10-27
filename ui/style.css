@@ -22,7 +22,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: system-ui, sans-serif;
-    background: var(--bg-primary);
+    background-color: var(--bg-primary);
     color: var(--text-primary);
     height: 100vh;
     overflow: hidden;
@@ -35,8 +35,7 @@ body {
 
         & aside.control-panel {
             flex-shrink: 1;
-            background: var(--bg-secondary);
-            /*! border-radius: 7px; */
+            background-color: var(--bg-secondary);
             padding: 8px;
             box-shadow: 0 2px 8px var(--shadow);
             display: flex;
@@ -46,7 +45,6 @@ body {
             & h3 {
                 margin: 0;
                 color: var(--accent-color);
-                /*! font-size: 1.5rem; */
             }
 
             & form.input-group {
@@ -57,16 +55,13 @@ body {
                 & label {
                     font-weight: 400;
                     color: var(--text-secondary);
-                    /*! font-size: 0.9rem; */
                 }
 
                 & input {
                     padding: 6px;
-                    background: var(--bg-tertiary);
+                    background-color: var(--bg-tertiary);
                     border: 1px solid var(--border-color);
-                    /*! border-radius: 4px; */
                     color: var(--text-primary);
-                    /*! font-size: 0.95rem; */
 
                     &::placeholder {
                         color: var(--text-placeholder);
@@ -86,24 +81,23 @@ body {
 
                 & button {
                     padding: 8px 12px;
-                    background: var(--accent-color);
+                    background-color: var(--accent-color);
                     border: none;
-                    /*! border-radius: 4px; */
                     color: var(--bg-primary);
                     font-weight: 600;
                     cursor: pointer;
-                    transition: background 0.2s;
+                    transition: background-color 0.2s;
 
                     &:hover {
-                        background: var(--accent-hover);
+                        background-color: var(--accent-hover);
                     }
 
                     &.secondary {
-                        background: var(--border-color);
+                        background-color: var(--border-color);
                         color: var(--text-primary);
 
                         &:hover {
-                            background: var(--border-hover);
+                            background-color: var(--border-hover);
                         }
                     }
                 }
@@ -115,10 +109,8 @@ body {
             min-width: 0;
             display: grid;
             gap: 3px;
-            /*! grid-template-columns: 100%; */
             transition: grid-template-columns 0.3s ease;
 
-            /*&[data-toshow-console="true"] {*/
             grid-template-columns:
                 clamp(25%, var(--console-width, 600px), 75%)
                 6px 1fr;
@@ -126,18 +118,9 @@ body {
             & div.resize-handle {
                 display: block;
             }
-            /*} */
-
-            /*&:not([data-toshow-console="true"]) {
-                & article.console-pane,
-                & div.resize-handle {
-                    display: none;
-                }
-            }*/
 
             & article.pane {
-                background: var(--bg-secondary);
-                /*! border-radius: 8px; */
+                background-color: var(--bg-secondary);
                 padding: 6px;
                 box-shadow: 0 2px 8px var(--shadow);
                 display: flex;
@@ -147,12 +130,10 @@ body {
 
                 & caption {
                     font-weight: 650;
-                    margin: 4px, 16px;
                     color: var(--accent-color);
-                    caption-side: top;
                     padding: 4px;
                     font-size: 1.2rem;
-                    flex-shrink: 0;
+                    caption-side: bottom;
                 }
 
                 & div.pane-content {
@@ -160,9 +141,8 @@ body {
                     min-height: 0;
                     overflow: auto;
                     scroll-behavior: smooth;
-                    background: var(--bg-primary);
+                    background-color: var(--bg-primary);
                     border: 1px solid var(--border-color);
-                    /*! border-radius: 4px; */
                     padding: 0px;
 
                     & table.console-table {
@@ -172,15 +152,14 @@ body {
                         & thead {
                             position: sticky;
                             top: 0;
-                            background: var(--bg-primary);
+                            background-color: var(--bg-primary);
                             z-index: 1;
 
                             & tr th {
                                 text-align: left;
-                                /*margin-inline-start: 2px;*/
                                 padding: 6px;
                                 font-weight: 600;
-                                background: color-mix(
+                                background-color: color-mix(
                                     in oklch,
                                     var(--even-row) 55%,
                                     var(--bg-primary) 100%
@@ -188,36 +167,33 @@ body {
                                 color: var(--accent-color);
                                 border-bottom: 2px solid var(--border-color);
                             }
-
-                            /*& td {
-                                padding: 2px 4px;
-                                border-bottom: 1px solid var(--border-color);
-                                text-align: left;
-                            }*/
                         }
 
                         & tbody {
+
+                            overflow-anchor: none;
+                            scroll-snap-type: y mandatory;
+                            scrollbar-gutter: auto;
+                            scroll-snap-align: end;
+                            scroll-padding-block-end: 4em;
+
                             & tr:nth-child(even) {
-                                background-color: color-mix(
-                                    in oklch,
-                                    var(--even-row) 45%,
-                                    var(--bg-primary) 100%
-                                );
+                                background-color: color-mix( in oklch, var(--even-row) 95%, var(--bg-primary) 100% );
                             }
 
                             & tr:nth-child(odd) {
-                                background-color: color-mix(
-                                    in oklch,
-                                    var(--odd-row) 45%,
-                                    var(--bg-primary) 100%
-                                );
+                                background-color: color-mix( in oklch, var(--odd-row) 65%, var(--bg-primary) 100% );
                             }
 
                             & td {
-                                padding: 8px;
+                                padding: 2px 4px;
                                 border-bottom: 1px solid var(--border-color);
-                                /*margin-inline-start: 2px;*/
                                 text-align: left;
+                            }
+
+                            & td pre {
+                                padding: 0px;
+                                margin: 0px;
                             }
                         }
                     }
@@ -226,14 +202,12 @@ body {
 
             & div.resize-handle {
                 width: 6px;
-                background: var(--border-color);
+                background-color: var(--border-color);
                 cursor: col-resize;
-                /*! border-radius: 2px; */
-                transition: background 0.2s;
-                /*display: none;*/
+                transition: background-color 0.2s;
 
                 &:hover {
-                    background: var(--accent-color);
+                    background-color: var(--accent-color);
                 }
             }
         }

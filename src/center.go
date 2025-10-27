@@ -10,9 +10,9 @@ import (
 
 type (
 	LogLine struct {
-		timestamp    string
-		level        LogLevel
-		msg, payload string
+		timestamp string
+		level     LogLevel
+		msg       string
 	}
 
 	HookData struct {
@@ -31,19 +31,11 @@ type (
 )
 
 func NewLogLine(timestamp string, level LogLevel, msg string) LogLine {
-	return LogLine{timestamp, level, msg, ""}
-}
-
-func NewLogLineWithPayload(timestamp string, level LogLevel, msg string, payload string) LogLine {
-	return LogLine{timestamp, level, msg, payload}
+	return LogLine{timestamp, level, msg}
 }
 
 func (l LogLine) String() string {
-	if l.payload == "" {
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n", l.timestamp, l.level, l.msg)
-	} else {
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s:\n%s</td></tr>\n", l.timestamp, l.level, l.msg, l.payload)
-	}
+	return fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n", l.timestamp, l.level, l.msg)
 }
 
 func (h HookData) String() string {
@@ -97,7 +89,7 @@ func SendControl(p7 *ApplicationState, controlSignal Control) {
 			_, err := p7.OutPipe.Write(b)
 
 			if err != nil {
-				p7.Log.ErrorWithPayload("Write error: %v\n", err)
+				p7.Log.Error("Write error: %v", err)
 			}
 			// } else {
 			// 	p7.Log.Debug("Wrote Signal %d", controlSignal)
