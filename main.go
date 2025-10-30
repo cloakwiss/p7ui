@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"os/exec"
+	"runtime"
+
 	"github.com/cloakwiss/p7ui/src"
 	"github.com/go-chi/chi/v5"
 )
@@ -195,15 +198,62 @@ func main() {
 
 			go server.ListenAndServe()
 
+			// Launch browser window
+			url := fmt.Sprintf("http://localhost:%d", port)
+			browserCmd := launchBrowser(url)
+
 			<-closing
 
 			log.Println("Closing the app")
 			app.Log.Info("Closing the app.")
-			// I dont know why this grace period
-			// just felt like
+
+			// Kill browser if launched
+			if browserCmd != nil && browserCmd.Process != nil {
+				browserCmd.Process.Kill()
+			}
+
 			time.Sleep(500 * time.Millisecond)
 			server.Close()
 
 		}()
 	}
+}
+
+// Launches a browser and returns the command (so we can kill it later)
+func launchBrowser(url string) *exec.Cmd {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		for _, browser := range []string{"chrome", "msedge", "firefox", "chromium"} {
+			if path, err := exec.LookPath(browser); err == nil {
+				cmd = exec.Command(path, "--app="+url)
+				cmd.Start()
+				return cmd
+			}
+		}
+		exec.Command("cmd", "/c", "start", "", url).Start()
+
+	case "darwin":
+		for _, browser := range []string{"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+			"/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+			"/Applications/Firefox.app/Contents/MacOS/firefox"} {
+			if _, err := exec.LookPath(browser); err == nil {
+				cmd = exec.Command(browser, "--app="+url)
+				cmd.Start()
+				return cmd
+			}
+		}
+		exec.Command("open", url).Start()
+
+	default: // Linux
+		for _, browser := range []string{"google-chrome", "chromium", "firefox"} {
+			if path, err := exec.LookPath(browser); err == nil {
+				cmd = exec.Command(path, "--app="+url)
+				cmd.Start()
+				return cmd
+			}
+		}
+		exec.Command("xdg-open", url).Start()
+	}
+	return nil
 }
