@@ -1,6 +1,9 @@
 package src
 
-import "net"
+import (
+	"github.com/cloakwiss/project-seven/desirialize"
+	"net"
+)
 
 type Page string
 
@@ -11,17 +14,35 @@ const (
 )
 
 type ApplicationState struct {
-	TargetPath    string
-	HookDllPath   string
-	IsCoreRunning bool
-	// Title         string
-	// Port          string
-	InPipeName  string
-	OutPipeName string
-	StepState   bool
-	Log         Logger
-	OutPipe     net.Conn
-	// Page        Page
+	TargetPath      string
+	HookDllPath     string
+	IsCoreRunning   bool
+	HookPipeName    string
+	ControlPipeName string
+	LogPipeName     string
+	StepState       bool
+	Log             Logger
+	ControlPipe     net.Conn
+	Page            Page
+	Hooks           HookList
+}
+
+type HookList struct {
+	CallList   []HookCall
+	ReturnList []HookReturns
+}
+
+type HookCall struct {
+	id    string
+	depth uint64
+	args  []desirialize.Values
+}
+
+type HookReturns struct {
+	id      string
+	depth   uint64
+	time    float64
+	returns []desirialize.Values
 }
 
 type Control byte

@@ -78,12 +78,12 @@ func MainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, s
 
 func SendControl(p7 *ApplicationState, controlSignal Control) {
 
-	if p7.OutPipe != nil {
+	if p7.ControlPipe != nil {
 		b := []byte{byte(controlSignal)}
 		//TODO: why this go routine, it fells like channel
 		// can do it
 		go func() {
-			_, err := p7.OutPipe.Write(b)
+			_, err := p7.ControlPipe.Write(b)
 
 			if err != nil {
 				p7.Log.Error("Write error: %v", err)
@@ -94,9 +94,9 @@ func SendControl(p7 *ApplicationState, controlSignal Control) {
 		}()
 
 	} else {
-		if !p7.IsCoreRunning && (p7.OutPipe == nil) {
+		if !p7.IsCoreRunning && (p7.ControlPipe == nil) {
 			p7.Log.Error("P7 is not running")
-		} else if p7.OutPipe == nil {
+		} else if p7.ControlPipe == nil {
 			p7.Log.Error("OutPipe is not connected")
 		}
 	}

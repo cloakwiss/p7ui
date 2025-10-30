@@ -55,10 +55,11 @@ func main() {
 
 				logger = src.NewLogger(source.LogC, closing)
 				app    = src.ApplicationState{
-					Log:           logger,
-					IsCoreRunning: false,
-					InPipeName:    `\\.\pipe\P7_HOOKS`,
-					OutPipeName:   `\\.\pipe\P7_CONTROLS`,
+					Log:             logger,
+					IsCoreRunning:   false,
+					HookPipeName:    `\\.\pipe\P7_HOOKS`,
+					ControlPipeName: `\\.\pipe\P7_CONTROLS`,
+					LogPipeName:     `\\.\pipe\P7_LOGS`,
 				}
 			)
 
@@ -132,7 +133,7 @@ func main() {
 				router.Get("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
 					if app.TargetPath != "" && app.HookDllPath != "" {
 						if !app.IsCoreRunning {
-							go src.Launch(&app, source.DataC)
+							go app.Launch(source.DataC)
 							app.Log.Info("UI Started")
 						} else {
 							app.Log.Error("Already Running a P7 instance.")
