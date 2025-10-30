@@ -16,7 +16,8 @@ type (
 	}
 
 	HookData struct {
-		lines []string
+		srno uint
+		data string
 	}
 
 	ChannelBundleSink struct {
@@ -39,11 +40,7 @@ func (l LogLine) String() string {
 }
 
 func (h HookData) String() string {
-	var lines string
-	for i, line := range h.lines {
-		lines += fmt.Sprintf("<tr><td>%d</td><td><pre>%s</pre></td></tr>\n", i+1, line)
-	}
-	return lines
+	return fmt.Sprintf("<tr><td>%d</td><td><pre>%s</pre></td></tr>\n", h.srno, h.data)
 }
 
 func CreateChannelBundle() (ChannelBundleSource, ChannelBundleSink) {
