@@ -4,12 +4,12 @@ go 1.25.3
 
 require (
 	github.com/Microsoft/go-winio v0.6.2
-	github.com/cloakwiss/project-seven/desirialize v0.0.0-00010101000000-000000000000
+	github.com/cloakwiss/project-seven/deserialize v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/starfederation/datastar-go v1.0.2
 )
 
-replace github.com/cloakwiss/project-seven/desirialize => ../desirialize
+replace github.com/cloakwiss/project-seven/deserialize => ../deserialize
 
 require (
 	github.com/CAFxX/httpcompression v0.0.9 // indirect
