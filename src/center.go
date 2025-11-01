@@ -69,7 +69,7 @@ func MainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, s
 		case data := <-sink.DataC:
 			{
 				if err := sse.PatchElements(data.String(), modeOpt, container2); err != nil {
-					log.Panicf("LogC: %s", err)
+					log.Panicf("DataC: %s", err)
 				}
 			}
 		}
@@ -88,9 +88,6 @@ func SendControl(p7 *ApplicationState, controlSignal Control) {
 			if err != nil {
 				p7.Log.Error("Write error: %v", err)
 			}
-			// } else {
-			// 	p7.Log.Debug("Wrote Signal %d", controlSignal)
-			// }
 		}()
 
 	} else {

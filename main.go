@@ -17,16 +17,7 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-var ()
-
 const port = 13337
-
-type (
-	target struct {
-		Executable string `json:"target"`
-		Hookdll    string `json:"hook"`
-	}
-)
 
 func pickFile() (string, error) {
 	selected, err := dialog.File().Title("Choose a file").Load()
@@ -43,215 +34,195 @@ func pickFile() (string, error) {
 }
 
 func main() {
+	func() {
 
-	for {
-		func() {
+		var (
+			closing      = make(chan struct{})
+			source, sink = src.CreateChannelBundle()
 
-			var (
-				closing      = make(chan struct{})
-				source, sink = src.CreateChannelBundle()
+			router = chi.NewRouter()
 
-				router = chi.NewRouter()
+			logger = src.NewLogger(source.LogC, closing)
+			app    = src.ApplicationState{
+				Log:             logger,
+				IsCoreRunning:   false,
+				HookPipeName:    `\\.\pipe\P7_HOOKS`,
+				ControlPipeName: `\\.\pipe\P7_CONTROLS`,
+				LogPipeName:     `\\.\pipe\P7_LOGS`,
+			}
+		)
 
-				logger = src.NewLogger(source.LogC, closing)
-				app    = src.ApplicationState{
-					Log:             logger,
-					IsCoreRunning:   false,
-					HookPipeName:    `\\.\pipe\P7_HOOKS`,
-					ControlPipeName: `\\.\pipe\P7_CONTROLS`,
-					LogPipeName:     `\\.\pipe\P7_LOGS`,
+		{ // assets
+			router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/index.html")
+			})
+
+			// TODO: First need to find new logo
+			// router.Get("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
+			// 	w.Header().Add("Content-Type", "text/json")
+			// 	http.ServeFile(w, r, "ui/maifest.json")
+			// })
+
+			// router.Get("/256.png", func(w http.ResponseWriter, r *http.Request) {
+			// 	w.Header().Add("Content-Type", "image/png")
+			// 	http.ServeFile(w, r, "ui/index.html")
+			// })
+
+			// router.Get("/128.png", func(w http.ResponseWriter, r *http.Request) {
+			// 	w.Header().Add("Content-Type", "image/png")
+			// })
+
+			// router.Get("/64.png", func(w http.ResponseWriter, r *http.Request) {
+			// 	w.Header().Add("Content-Type", "image/png")
+			// })
+
+			router.Get("/style.css", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/style.css")
+			})
+
+			router.Get("/datastar.js", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/datastar.js")
+			})
+
+			router.Get("/drag.js", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/drag.js")
+			})
+
+			router.Get("/toggle_stop_resume.js", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/toggle_stop_resume.js")
+			})
+
+			router.Get("/toggle_stop_resume.js", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/toggle_stop_resume.js")
+			})
+
+			router.Get("/stec-logo.png", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/stec-logo.png")
+			})
+
+			router.Get("/stsc-logo.png", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/stsc-logo.png")
+			})
+
+		}
+		{ // routes
+
+			router.Get("/picktarget", func(w http.ResponseWriter, r *http.Request) {
+				name, error := pickFile()
+				if error != nil {
+					app.Log.Error("Error in file picking")
 				}
-			)
+				app.TargetPath = name
+				defer r.Body.Close()
+				sse := datastar.NewSSE(w, r)
+				container1 := datastar.WithSelectorID("target_path")
 
-			{ // assets
-				router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					http.ServeFile(w, r, "ui/index.html")
-				})
+				input := `<input type="text" id="target_path" placeholder="Selected target executable path will appear here" value="` + name + `" readonly>`
+				if err := sse.PatchElements(input, container1); err != nil {
+					return
+				}
+			})
+			router.Get("/pickhookdll", func(w http.ResponseWriter, r *http.Request) {
+				name, error := pickFile()
+				if error != nil {
+					app.Log.Error("Error in file picking")
+				}
+				app.HookDllPath = name
+				defer r.Body.Close()
+				sse := datastar.NewSSE(w, r)
+				container1 := datastar.WithSelectorID("hookdll_path")
 
-				// TODO: First need to find new logo
-				// router.Get("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
-				// 	w.Header().Add("Content-Type", "text/json")
-				// 	http.ServeFile(w, r, "ui/maifest.json")
-				// })
+				input := `<input type="text" id="hookdll_path" placeholder="Selected hookdll will appear here" value="` + name + `" readonly>`
+				if err := sse.PatchElements(input, container1); err != nil {
+					return
+				}
+			})
 
-				// router.Get("/256.png", func(w http.ResponseWriter, r *http.Request) {
-				// 	w.Header().Add("Content-Type", "image/png")
-				// 	http.ServeFile(w, r, "ui/index.html")
-				// })
-
-				// router.Get("/128.png", func(w http.ResponseWriter, r *http.Request) {
-				// 	w.Header().Add("Content-Type", "image/png")
-				// })
-
-				// router.Get("/64.png", func(w http.ResponseWriter, r *http.Request) {
-				// 	w.Header().Add("Content-Type", "image/png")
-				// })
-
-				router.Get("/style.css", func(w http.ResponseWriter, r *http.Request) {
-					// w.Header().Add("Content-Type", "text/css")
-					http.ServeFile(w, r, "ui/style.css")
-				})
-
-				router.Get("/datastar.js", func(w http.ResponseWriter, r *http.Request) {
-					// w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
-					http.ServeFile(w, r, "ui/datastar.js")
-				})
-
-				router.Get("/drag.js", func(w http.ResponseWriter, r *http.Request) {
-					// w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
-					http.ServeFile(w, r, "ui/drag.js")
-				})
-
-				router.Get("//toggle_stop_resume.js", func(w http.ResponseWriter, r *http.Request) {
-					// w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
-					http.ServeFile(w, r, "ui/toggle_stop_resume.js")
-				})
-
-			}
-			{ // routes
-
-				router.Get("/picktarget", func(w http.ResponseWriter, r *http.Request) {
-					name, error := pickFile()
-					if error != nil {
-						app.Log.Error("Error in file picking")
-					}
-					app.TargetPath = name
-					defer r.Body.Close()
-					sse := datastar.NewSSE(w, r)
-					container1 := datastar.WithSelectorID("target_path")
-
-					input := `<input type="text" id="target_path" placeholder="Selected target executable path will appear here" value="` + name + `" readonly>`
-					if err := sse.PatchElements(input, container1); err != nil {
-						return
-					}
-				})
-				router.Get("/pickhookdll", func(w http.ResponseWriter, r *http.Request) {
-					name, error := pickFile()
-					if error != nil {
-						app.Log.Error("Error in file picking")
-					}
-					app.HookDllPath = name
-					defer r.Body.Close()
-					sse := datastar.NewSSE(w, r)
-					container1 := datastar.WithSelectorID("hookdll_path")
-
-					input := `<input type="text" id="hookdll_path" placeholder="Selected hookdll will appear here" value="` + name + `" readonly>`
-					if err := sse.PatchElements(input, container1); err != nil {
-						return
-					}
-				})
-
-				// router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
-				// 	var target = target{}
-
-				// 	defer r.Body.Close()
-
-				// 	if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
-				// 		log.Println("Decode failed:", err)
-				// 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-				// 		return
-				// 	}
-				// 	// valid the target data
-				// 	if target.Executable == "" {
-				// 		app.Log.Error("Target not Picked.")
-				// 	} else {
-				// 		app.TargetPath = target.Executable
-				// 	}
-
-				// 	if target.Hookdll == "" {
-				// 		app.Log.Error("Hookdll not Picked.")
-				// 	} else {
-				// 		app.HookDllPath = target.Hookdll
-				// 	}
-
-				// 	log.Printf("Data: %+v", target)
-				// })
-
-				router.Get("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
-					if app.TargetPath != "" && app.HookDllPath != "" {
-						if !app.IsCoreRunning {
-							go app.Launch(source.DataC)
-							app.Log.Info("UI Started")
-						} else {
-							app.Log.Error("Already Running a P7 instance.")
-						}
+			router.Get("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
+				fmt.Println(r.Header)
+				if app.TargetPath != "" && app.HookDllPath != "" {
+					if !app.IsCoreRunning {
+						go app.Launch(source.DataC)
+						app.Log.Info("UI Started")
 					} else {
-						app.Log.Fatal("Target Path and HookDll path is empty.")
+						app.Log.Error("Already Running a P7 instance.")
 					}
+				} else {
+					app.Log.Error("Target Path and HookDll path is empty.")
+				}
 
-					src.MainLoop(w, r, closing, sink)
-				})
+				src.MainLoop(w, r, closing, sink)
+			})
+			router.Post("/stop", func(w http.ResponseWriter, r *http.Request) {
+				app.Log.Info("Stop clicked")
+				src.SendControl(&app, src.Stop)
+			})
 
-				router.Post("/stop", func(w http.ResponseWriter, r *http.Request) {
-					app.Log.Info("Stop clicked")
-					src.SendControl(&app, src.Stop)
-					close(closing)
-				})
+			router.Post("/resume", func(w http.ResponseWriter, r *http.Request) {
+				app.Log.Info("Resume clicked")
+				src.SendControl(&app, src.Resume)
+			})
+			router.Post("/abort", func(w http.ResponseWriter, r *http.Request) {
+				app.Log.Info("Abort clicked")
+				src.SendControl(&app, src.Abort)
+				close(closing)
+			})
+			router.Post("/step", func(w http.ResponseWriter, r *http.Request) {
+				app.Log.Info("Step clicked")
 
-				router.Post("/resume", func(w http.ResponseWriter, r *http.Request) {
-					app.Log.Info("Resume clicked")
-					src.SendControl(&app, src.Resume)
-				})
-				router.Post("/abort", func(w http.ResponseWriter, r *http.Request) {
-					app.Log.Info("Abort clicked")
-					src.SendControl(&app, src.Abort)
-				})
-				router.Post("/step", func(w http.ResponseWriter, r *http.Request) {
-					app.Log.Info("Step clicked")
-
-					if app.StepState {
-						src.SendControl(&app, src.STEC)
-					} else {
-						src.SendControl(&app, src.STSC)
-					}
-
-					// To alter step to start at end of calls
-					app.StepState = !app.StepState
-				})
-				router.Post("/stec", func(w http.ResponseWriter, r *http.Request) {
-					app.Log.Info("STEC clicked")
+				if app.StepState {
 					src.SendControl(&app, src.STEC)
-
-					// To properly fall into the next call start
-					app.StepState = false
-				})
-				router.Post("/stsc", func(w http.ResponseWriter, r *http.Request) {
-					app.Log.Info("STSC clicked")
+				} else {
 					src.SendControl(&app, src.STSC)
+				}
 
-					// To properly fall into the next call end
-					app.StepState = true
-				})
-			}
+				// To alter step to start at end of calls
+				app.StepState = !app.StepState
+			})
+			router.Post("/stec", func(w http.ResponseWriter, r *http.Request) {
+				app.Log.Info("STEC clicked")
+				src.SendControl(&app, src.STEC)
 
-			log.Printf("Starting server on http://localhost:%d", port)
+				// To properly fall into the next call start
+				app.StepState = false
+			})
+			router.Post("/stsc", func(w http.ResponseWriter, r *http.Request) {
+				app.Log.Info("STSC clicked")
+				src.SendControl(&app, src.STSC)
 
-			server := http.Server{
-				Addr:    fmt.Sprintf(":%d", port),
-				Handler: router,
-			}
+				// To properly fall into the next call end
+				app.StepState = true
+			})
+		}
 
-			go server.ListenAndServe()
+		log.Printf("Starting server on http://localhost:%d", port)
 
-			// Launch browser window
-			url := fmt.Sprintf("http://localhost:%d", port)
-			browserCmd := launchBrowser(url)
+		server := http.Server{
+			Addr:    fmt.Sprintf(":%d", port),
+			Handler: router,
+		}
 
-			<-closing
+		go server.ListenAndServe()
 
-			log.Println("Closing the app")
-			app.Log.Info("Closing the app.")
+		// Launch browser window
+		// url := fmt.Sprintf("http://localhost:%d", port)
+		// browserCmd := launchBrowser(url)
+		// fmt.Println(url)
 
-			// Kill browser if launched
-			if browserCmd != nil && browserCmd.Process != nil {
-				browserCmd.Process.Kill()
-			}
+		<-closing
 
-			time.Sleep(500 * time.Millisecond)
-			server.Close()
+		app.Log.Info("Closing the app.")
 
-		}()
-	}
+		// Kill browser if launched
+		// if browserCmd != nil && browserCmd.Process != nil {
+		// 	browserCmd.Process.Kill()
+		// }
+
+		time.Sleep(500 * time.Millisecond)
+		server.Close()
+
+	}()
+
 }
 
 // Launches a browser and returns the command (so we can kill it later)
