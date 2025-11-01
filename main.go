@@ -17,27 +17,7 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-var (
-
-	//go:embed ui/64.png
-	l64 []byte
-	//go:embed ui/128.png
-	l128 []byte
-	//go:embed ui/256.png
-	l256 []byte
-
-	//go:embed ui/manifest.json
-	manifest []byte
-
-	//go:embed ui/index.html
-	index []byte
-	//go:embed ui/style.css
-	style []byte
-	//go:embed ui/datastar.js
-	datastarScript []byte
-	//go:embed ui/drag.js
-	drag []byte
-)
+var ()
 
 const port = 13337
 
@@ -85,43 +65,48 @@ func main() {
 
 			{ // assets
 				router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					w.Write(index)
+					http.ServeFile(w, r, "ui/index.html")
 				})
 
-				router.Get("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Add("Content-Type", "text/json")
-					w.Write(manifest)
-				})
+				// TODO: First need to find new logo
+				// router.Get("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
+				// 	w.Header().Add("Content-Type", "text/json")
+				// 	http.ServeFile(w, r, "ui/maifest.json")
+				// })
 
-				router.Get("/256.png", func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Add("Content-Type", "image/png")
-					w.Write(l256)
-				})
+				// router.Get("/256.png", func(w http.ResponseWriter, r *http.Request) {
+				// 	w.Header().Add("Content-Type", "image/png")
+				// 	http.ServeFile(w, r, "ui/index.html")
+				// })
 
-				router.Get("/128.png", func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Add("Content-Type", "image/png")
-					w.Write(l128)
-				})
+				// router.Get("/128.png", func(w http.ResponseWriter, r *http.Request) {
+				// 	w.Header().Add("Content-Type", "image/png")
+				// })
 
-				router.Get("/64.png", func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Add("Content-Type", "image/png")
-					w.Write(l64)
-				})
+				// router.Get("/64.png", func(w http.ResponseWriter, r *http.Request) {
+				// 	w.Header().Add("Content-Type", "image/png")
+				// })
 
 				router.Get("/style.css", func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Add("Content-Type", "text/css")
-					w.Write(style)
+					// w.Header().Add("Content-Type", "text/css")
+					http.ServeFile(w, r, "ui/style.css")
 				})
 
 				router.Get("/datastar.js", func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
-					w.Write(datastarScript)
+					// w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
+					http.ServeFile(w, r, "ui/datastar.js")
 				})
 
 				router.Get("/drag.js", func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
-					w.Write(drag)
+					// w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
+					http.ServeFile(w, r, "ui/drag.js")
 				})
+
+				router.Get("//toggle_stop_resume.js", func(w http.ResponseWriter, r *http.Request) {
+					// w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
+					http.ServeFile(w, r, "ui/toggle_stop_resume.js")
+				})
+
 			}
 			{ // routes
 
