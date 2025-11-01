@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleBtn.addEventListener("click", async () => {
         const currentAction = states[current].action;
 
-        // --- perform the post action ---
         if (currentAction.startsWith("@post")) {
             const url = currentAction.match(/'([^']+)'/)[1]; // extract '/stop' or '/resume'
             console.log("Posting to:", url);
@@ -42,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const state = states[current];
 
         toggleBtn.setAttribute("title", state.title);
-        toggleBtn.setAttribute("data-on-click", state.action);
         toggleBtn.innerHTML = state.icon;
 
         console.log(`Switched to: ${state.title}, next action = ${state.action}`);
