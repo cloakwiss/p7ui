@@ -36,7 +36,6 @@ body {
             flex-shrink: 0;
             width: 300px;
             background: var(--bg-secondary);
-            border-radius: 20px;
             box-shadow: 0 2px 8px var(--shadow);
             display: flex;
             flex-direction: column;
@@ -236,13 +235,31 @@ button:hover svg {
   stroke: cyan;      /* hover effect */
 }
 
-.control-panel {
+/* Shared layout variables */
+:root {
+    --sidebar-width: 300px;  
+    --toolbar-height: 50px;  
+    --content-gap: 20px;
+}
+
+/* Layout container */
+main.app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* prevent scrollbars on entire app */
+}
+
+/* Sidebar */
+aside.control-panel {
+    width: var(--sidebar-width);
     background-color: #2d2d2d;
     border-right: 1px solid #4d4d4d;
     display: flex;
     flex-direction: column;
+    height: 100vh; /* Full height including behind toolbar */
 }
 
+/* Header */
 .panel-header {
     padding: 20px;
     border-bottom: 1px solid #4d4d4d;
@@ -255,12 +272,14 @@ button:hover svg {
     color: #5dd5f6;
 }
 
+/* Sidebar content */
 .panel-content {
     padding: 20px;
     overflow-y: auto;
     flex: 1;
 }
 
+/* Input groups */
 .input-group {
     margin-bottom: 20px;
 }
@@ -296,3 +315,82 @@ button:hover svg {
     resize: vertical;
     min-height: 150px;
 }
+
+/* Main content area */
+section.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100vh;
+    padding-bottom: calc(var(--toolbar-height) + var(--content-gap));
+    box-sizing: border-box;
+}
+
+/* Bottom Toolbar */
+.bottom-toolbar {
+    position: fixed;
+    bottom: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--toolbar-height);
+    background-color: #242424;
+    border-top: 1px solid #4d4d4d;
+    display: flex;
+    justify-content: center;       
+    align-items: center;           
+    gap: 8px;                      
+    padding: 0 16px;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Toolbar Buttons */
+.toolbar-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #252525;    
+    border: 1px solid #4d4d4d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.toolbar-btn svg {
+    width: 16px;
+    height: 16px;
+    color: #e0e0e0;
+}
+
+.toolbar-btn:hover {
+    background-color: #353535;
+    border-color: #5dd5f6;
+}
+
+.toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+.toolbar-center {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+}
+
