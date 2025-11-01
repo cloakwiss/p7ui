@@ -8,10 +8,14 @@
         <link rel="manifest" href="/manifest.json" />
     </head>
     <body>
+        
         <main class="app-container">
             <aside class="control-panel">
-                <h2>Control Panel</h2>
+                <div class="panel-header">
+                    <h2>Control Panel</h2>
+                </div>
 
+                <div class="panel-content">
                 <form class="input-group" autocomplete="on">
                     <label for="target_path">Target Executable</label>
                     <input
@@ -37,64 +41,9 @@
                         data-bind="hook"
                     />
                 </form>
+                </div>
+                
 
-                <nav class="button-group">
-                    <button type="button" data-on-click="@post('/target_pick')">
-                        Run
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/spawnp7')"
-                    >
-                        Start
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/step')"
-                    >
-                        Step
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/stop')"
-                    >
-                        Stop
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/resume')"
-                    >
-                        Resume
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/abort')"
-                    >
-                        Abort
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/stec')"
-                    >
-                        STEC
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/stsc')"
-                    >
-                        STSC
-                    </button>
-                    <!-- <button type="button" id="toggle-detail">
-                        Show Details
-                    </button> -->
-                </nav>
             </aside>
 
             <section

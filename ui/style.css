@@ -30,15 +30,13 @@ body {
     & main.app-container {
         display: flex;
         height: 100vh;
-        padding: 20px;
         gap: 20px;
 
         & aside.control-panel {
             flex-shrink: 0;
-            width: clamp(200px, 15%, 300px);
+            width: 300px;
             background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 20px;
             box-shadow: 0 2px 8px var(--shadow);
             display: flex;
             flex-direction: column;
@@ -227,4 +225,74 @@ body {
             }
         }
     }
+}
+
+button svg {
+  width: 20px;
+  height: 20px;
+  stroke: white;     /* change color */
+}
+button:hover svg {
+  stroke: cyan;      /* hover effect */
+}
+
+.control-panel {
+    background-color: #2d2d2d;
+    border-right: 1px solid #4d4d4d;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    padding: 20px;
+    border-bottom: 1px solid #4d4d4d;
+    background-color: #252525;
+}
+
+.panel-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #5dd5f6;
+}
+
+.panel-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #a0a0a0;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 10px;
+    background-color: #3d3d3d;
+    border: 1px solid #4d4d4d;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #5dd5f6;
+    box-shadow: 0 0 0 2px rgba(93, 213, 246, 0.1);
+}
+
+.input-group textarea {
+    resize: vertical;
+    min-height: 150px;
 }
