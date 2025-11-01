@@ -30,21 +30,21 @@ body {
     & main.app-container {
         display: flex;
         height: 100vh;
-        padding: 8px;
-        gap: 4px;
+        gap: 20px;
 
         & aside.control-panel {
-            flex-shrink: 1;
+            flex-shrink: 0;
+            width: 300px;
             background-color: var(--bg-secondary);
-            padding: 8px;
             box-shadow: 0 2px 8px var(--shadow);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 20px;
 
-            & h3 {
+            & h2 {
                 margin: 0;
                 color: var(--accent-color);
+                font-size: 1.5rem;
             }
 
             & form.input-group {
@@ -53,15 +53,18 @@ body {
                 gap: 5px;
 
                 & label {
-                    font-weight: 400;
+                    font-weight: 500;
                     color: var(--text-secondary);
+                    font-size: 0.9rem;
                 }
 
                 & input {
-                    padding: 6px;
+                    padding: 10px;
                     background-color: var(--bg-tertiary);
                     border: 1px solid var(--border-color);
+                    border-radius: 4px;
                     color: var(--text-primary);
+                    font-size: 0.95rem;
 
                     &::placeholder {
                         color: var(--text-placeholder);
@@ -77,12 +80,13 @@ body {
             & nav.button-group {
                 display: flex;
                 flex-direction: column;
-                gap: 6px;
+                gap: 10px;
 
                 & button {
-                    padding: 8px 12px;
+                    padding: 10px 20px;
                     background-color: var(--accent-color);
                     border: none;
+                    border-radius: 4px;
                     color: var(--bg-primary);
                     font-weight: 600;
                     cursor: pointer;
@@ -108,32 +112,44 @@ body {
             flex: 1;
             min-width: 0;
             display: grid;
-            gap: 3px;
+            gap: 10px;
+            grid-template-columns: 100%;
             transition: grid-template-columns 0.3s ease;
 
-            grid-template-columns:
-                clamp(25%, var(--console-width, 600px), 75%)
-                6px 1fr;
+            &[data-toshow-console="true"] {
+                grid-template-columns: clamp(
+                        25%,
+                        var(--console-width, 600px),
+                        75%
+                    ) 6px 1fr;
 
-            & div.resize-handle {
-                display: block;
+                & div.resize-handle {
+                    display: block;
+                }
+            }
+
+            &:not([data-toshow-console="true"]) {
+                & article.console-pane,
+                & div.resize-handle {
+                    display: none;
+                }
             }
 
             & article.pane {
                 background-color: var(--bg-secondary);
-                padding: 6px;
+                border-radius: 8px;
+                padding: 20px;
                 box-shadow: 0 2px 8px var(--shadow);
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
                 overflow: hidden;
 
-                & caption {
-                    font-weight: 650;
+                & h3 {
+                    margin: 0 0 15px 0;
                     color: var(--accent-color);
-                    padding: 4px;
                     font-size: 1.2rem;
-                    caption-side: bottom;
+                    flex-shrink: 0;
                 }
 
                 & div.pane-content {
@@ -143,7 +159,8 @@ body {
                     scroll-behavior: smooth;
                     background-color: var(--bg-primary);
                     border: 1px solid var(--border-color);
-                    padding: 0px;
+                    border-radius: 4px;
+                    padding: 15px;
 
                     & table.console-table {
                         width: 100%;
@@ -155,47 +172,40 @@ body {
                             background-color: var(--bg-primary);
                             z-index: 1;
 
-                            & tr th {
+                            & tr th{
                                 text-align: left;
-                                padding: 6px;
+                                padding: 8px;
                                 font-weight: 600;
-                                background-color: color-mix(
-                                    in oklch,
-                                    var(--even-row) 55%,
-                                    var(--bg-primary) 100%
-                                );
+                                background-color: color-mix(in oklch, var(--even-row) 55%, var(--bg-primary) 100%);
                                 color: var(--accent-color);
                                 border-bottom: 2px solid var(--border-color);
                             }
-                        }
-
-                        & tbody {
-
-                            overflow-anchor: none;
-                            scroll-snap-type: y mandatory;
-                            scrollbar-gutter: auto;
-                            scroll-snap-align: end;
-                            scroll-padding-block-end: 4em;
-
-                            & tr:nth-child(even) {
-                                background-color: color-mix( in oklch, var(--even-row) 95%, var(--bg-primary) 100% );
-                            }
-
-                            & tr:nth-child(odd) {
-                                background-color: color-mix( in oklch, var(--odd-row) 65%, var(--bg-primary) 100% );
-                            }
 
                             & td {
-                                padding: 2px 4px;
+                                padding: 8px;
                                 border-bottom: 1px solid var(--border-color);
                                 text-align: left;
                             }
 
-                            & td pre {
-                                padding: 0px;
-                                margin: 0px;
+                        }
+
+                        & tbody {
+
+                            & tr:nth-child(even) {
+                                background-color: color-mix(in oklch, var(--even-row) 25%, var(--bg-primary) 100%);
+                            }
+
+                            & tr:nth-child(odd) {
+                                background-color: color-mix(in oklch, var(--odd-row) 25%, var(--bg-primary) 100%);
+                            }
+
+                            & td {
+                                padding: 8px;
+                                border-bottom: 1px solid var(--border-color);
+                                text-align: left;
                             }
                         }
+
                     }
                 }
             }
@@ -204,7 +214,9 @@ body {
                 width: 6px;
                 background-color: var(--border-color);
                 cursor: col-resize;
+                border-radius: 2px;
                 transition: background-color 0.2s;
+                display: none;
 
                 &:hover {
                     background-color: var(--accent-color);
@@ -213,3 +225,172 @@ body {
         }
     }
 }
+
+button svg {
+  width: 20px;
+  height: 20px;
+  stroke: white;     /* change color */
+}
+button:hover svg {
+  stroke: cyan;      /* hover effect */
+}
+
+/* Shared layout variables */
+:root {
+    --sidebar-width: 300px;  
+    --toolbar-height: 50px;  
+    --content-gap: 20px;
+}
+
+/* Layout container */
+main.app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* prevent scrollbars on entire app */
+}
+
+/* Sidebar */
+aside.control-panel {
+    width: var(--sidebar-width);
+    background-color-color: #2d2d2d;
+    border-right: 1px solid #4d4d4d;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Full height including behind toolbar */
+}
+
+/* Header */
+.panel-header {
+    padding: 20px;
+    border-bottom: 1px solid #4d4d4d;
+    background-color-color: #252525;
+}
+
+.panel-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #5dd5f6;
+}
+
+/* Sidebar content */
+.panel-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Input groups */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #a0a0a0;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 10px;
+    background-color-color: #3d3d3d;
+    border: 1px solid #4d4d4d;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #5dd5f6;
+    box-shadow: 0 0 0 2px rgba(93, 213, 246, 0.1);
+}
+
+.input-group textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+/* Main content area */
+section.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100vh;
+    padding-bottom: calc(var(--toolbar-height) + var(--content-gap));
+    box-sizing: border-box;
+}
+
+/* Bottom Toolbar */
+.bottom-toolbar {
+    position: fixed;
+    bottom: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--toolbar-height);
+    background-color-color: #242424;
+    border-top: 1px solid #4d4d4d;
+    display: flex;
+    justify-content: center;       
+    align-items: center;           
+    gap: 8px;                      
+    padding: 0 16px;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Toolbar Buttons */
+.toolbar-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color-color: #252525;    
+    border: 1px solid #4d4d4d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.toolbar-btn svg {
+    width: 16px;
+    height: 16px;
+    color: #e0e0e0;
+}
+
+.toolbar-btn:hover {
+    background-color-color: #353535;
+    border-color: #5dd5f6;
+}
+
+.toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+.toolbar-center {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+}
+

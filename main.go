@@ -2,14 +2,19 @@ package main
 
 import (
 	_ "embed"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 	"time"
+
+	"os/exec"
+	"runtime"
 
 	"github.com/cloakwiss/p7ui/src"
 	"github.com/go-chi/chi/v5"
+	"github.com/sqweek/dialog"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 var (
@@ -43,7 +48,22 @@ type (
 	}
 )
 
+func pickFile() (string, error) {
+	selected, err := dialog.File().Title("Choose a file").Load()
+	if err != nil {
+		return "Error in Picking File", nil
+	}
+
+	abs, err := filepath.Abs(selected)
+	if err != nil {
+		return selected, nil
+	}
+
+	return abs, nil
+}
+
 func main() {
+
 	for {
 		func() {
 
@@ -104,31 +124,63 @@ func main() {
 				})
 			}
 			{ // routes
-				router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
-					var target = target{}
 
+				router.Get("/picktarget", func(w http.ResponseWriter, r *http.Request) {
+					name, error := pickFile()
+					if error != nil {
+						app.Log.Error("Error in file picking")
+					}
+					app.TargetPath = name
 					defer r.Body.Close()
+					sse := datastar.NewSSE(w, r)
+					container1 := datastar.WithSelectorID("target_path")
 
-					if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
-						log.Println("Decode failed:", err)
-						http.Error(w, "Invalid JSON", http.StatusBadRequest)
+					input := `<input type="text" id="target_path" placeholder="Selected target executable path will appear here" value="` + name + `" readonly>`
+					if err := sse.PatchElements(input, container1); err != nil {
 						return
 					}
-					// valid the target data
-					if target.Executable == "" {
-						app.Log.Error("Target not Picked.")
-					} else {
-						app.TargetPath = target.Executable
-					}
-
-					if target.Hookdll == "" {
-						app.Log.Error("Hookdll not Picked.")
-					} else {
-						app.HookDllPath = target.Hookdll
-					}
-
-					log.Printf("Data: %+v", target)
 				})
+				router.Get("/pickhookdll", func(w http.ResponseWriter, r *http.Request) {
+					name, error := pickFile()
+					if error != nil {
+						app.Log.Error("Error in file picking")
+					}
+					app.HookDllPath = name
+					defer r.Body.Close()
+					sse := datastar.NewSSE(w, r)
+					container1 := datastar.WithSelectorID("hookdll_path")
+
+					input := `<input type="text" id="hookdll_path" placeholder="Selected hookdll will appear here" value="` + name + `" readonly>`
+					if err := sse.PatchElements(input, container1); err != nil {
+						return
+					}
+				})
+
+				// router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
+				// 	var target = target{}
+
+				// 	defer r.Body.Close()
+
+				// 	if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
+				// 		log.Println("Decode failed:", err)
+				// 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+				// 		return
+				// 	}
+				// 	// valid the target data
+				// 	if target.Executable == "" {
+				// 		app.Log.Error("Target not Picked.")
+				// 	} else {
+				// 		app.TargetPath = target.Executable
+				// 	}
+
+				// 	if target.Hookdll == "" {
+				// 		app.Log.Error("Hookdll not Picked.")
+				// 	} else {
+				// 		app.HookDllPath = target.Hookdll
+				// 	}
+
+				// 	log.Printf("Data: %+v", target)
+				// })
 
 				router.Get("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
 					if app.TargetPath != "" && app.HookDllPath != "" {
@@ -196,15 +248,62 @@ func main() {
 
 			go server.ListenAndServe()
 
+			// Launch browser window
+			url := fmt.Sprintf("http://localhost:%d", port)
+			browserCmd := launchBrowser(url)
+
 			<-closing
 
 			log.Println("Closing the app")
 			app.Log.Info("Closing the app.")
-			// I dont know why this grace period
-			// just felt like
+
+			// Kill browser if launched
+			if browserCmd != nil && browserCmd.Process != nil {
+				browserCmd.Process.Kill()
+			}
+
 			time.Sleep(500 * time.Millisecond)
 			server.Close()
 
 		}()
 	}
+}
+
+// Launches a browser and returns the command (so we can kill it later)
+func launchBrowser(url string) *exec.Cmd {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		for _, browser := range []string{"chrome", "msedge", "firefox", "chromium"} {
+			if path, err := exec.LookPath(browser); err == nil {
+				cmd = exec.Command(path, "--app="+url)
+				cmd.Start()
+				return cmd
+			}
+		}
+		exec.Command("cmd", "/c", "start", "", url).Start()
+
+	case "darwin":
+		for _, browser := range []string{"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+			"/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+			"/Applications/Firefox.app/Contents/MacOS/firefox"} {
+			if _, err := exec.LookPath(browser); err == nil {
+				cmd = exec.Command(browser, "--app="+url)
+				cmd.Start()
+				return cmd
+			}
+		}
+		exec.Command("open", url).Start()
+
+	default: // Linux
+		for _, browser := range []string{"google-chrome", "chromium", "firefox"} {
+			if path, err := exec.LookPath(browser); err == nil {
+				cmd = exec.Command(path, "--app="+url)
+				cmd.Start()
+				return cmd
+			}
+		}
+		exec.Command("xdg-open", url).Start()
+	}
+	return nil
 }

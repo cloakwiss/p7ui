@@ -8,10 +8,15 @@
         <link rel="manifest" href="/manifest.json" />
     </head>
     <body>
+        
         <main class="app-container">
             <aside class="control-panel">
-                <h3>Control Panel</h3>
-                <form class="input-group" autocomplete="on">
+                <div class="panel-header">
+                    <h2>Control Panel</h2>
+                </div>
+
+                <div class="panel-content">
+                <!-- <form class="input-group" autocomplete="on">
                     <label for="target_path">Target Executable</label>
                     <input
                         required
@@ -23,6 +28,7 @@
                         data-bind="target"
                     />
                 </form>
+                
 
                 <form class="input-group">
                     <label for="hookdll_path">Hook DLL</label>
@@ -35,67 +41,25 @@
                         placeholder="Selected hookdll will appear here"
                         data-bind="hook"
                     />
-                </form>
+                </form> -->
 
-                <nav class="button-group">
-                    <button type="button" data-on-click="@post('/target_pick')">
-                        Run
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-indicator:_fetching
-                        data-attr:disabled="$_fetching"
-                        data-on-click="@get('/spawnp7', {openWhenHidden: true})"
-                    >
-                        Start
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/stop')"
-                    >
-                        Stop
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/resume')"
-                    >
-                        Resume
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/abort')"
-                    >
-                        Abort
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/step')"
-                    >
-                        Step
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/stec')"
-                    >
-                        STEC
-                    </button>
-                    <button
-                        type="button"
-                        class="secondary"
-                        data-on-click="@post('/stsc')"
-                    >
-                        STSC
-                    </button>
-                    <!-- <button type="button" id="toggle-detail">
-                        Show Details
-                    </button> -->
-                </nav>
+                <div class="input-group">
+				    <label for="target_path">Target Executable</label>
+				    <input type="text" id="target_path" placeholder="Selected target executable path will appear here" required autocomplete="on">
+			    </div>
+
+			    <div class="input-group">
+				    <label for="hookdll_path">Hook DLL</label>
+				    <input type="text" id="hookdll_path" placeholder="Selected hookdll will appear here" required autocomplete="on">
+			    </div>
+
+                <div class="button-group">
+				    <button id="target_pick" data-on-click="@get('/picktarget')">Pick Target</button>
+				    <button id="hookdll_pick" data-on-click="@get('/pickhookdll')">Pick Hookdll</button>
+			    </div>
+                </div>
+                
+
             </aside>
 
             <section
@@ -104,17 +68,13 @@
                 data-toshow-console="true"
             >
                 <article class="pane console-pane">
+                    <h3>Console Output</h3>
                     <div class="pane-content">
                         <table class="console-table">
-                            <caption>
-                                Console Output
-                            </caption>
                             <thead>
-                                <tr>
-                                    <th>Time</th>
-                                    <th>Level</th>
-                                    <th>Log</th>
-                                </tr>
+                                <th>Time</th>
+                                <th>Level</th>
+                                <th>Log</th>
                             </thead>
                             <tbody id="console"></tbody>
                         </table>
@@ -122,23 +82,76 @@
                 </article>
                 <div class="resize-handle" id="resize-handle"></div>
                 <article class="pane details-pane">
+                    <h3>Hook Details</h3>
                     <div class="pane-content">
                         <table
                             class="console-table"
                             id="hook-details"
                             aria-label="Hook details"
                         >
-                            <caption>
-                                Hook Details
-                            </caption>
                             <tbody id="hooks"></tbody>
                         </table>
                     </div>
                 </article>
             </section>
+
+            <!-- Bottom Toolbar -->
+            <nav class="bottom-toolbar">
+                <div class="toolbar-center">
+                <button type="button"  class = "toolbar-btn" data-on-click="@post('/target_pick')" title="Run">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                        <path fill-rule="evenodd" d="M13.25 2a.75.75 0 0 0-.75.75v6.5H4.56l.97-.97a.75.75 0 0 0-1.06-1.06L2.22 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06l-.97-.97h8.69A.75.75 0 0 0 14 10V2.75a.75.75 0 0 0-.75-.75Z" clip-rule="evenodd" />
+                    </svg>
+
+                </button>
+
+                <button type="button" class="toolbar-btn" data-on-click="@get('/spawnp7')" title="Start">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                        <path d="M3 3.732a1.5 1.5 0 0 1 2.305-1.265l6.706 4.267a1.5 1.5 0 0 1 0 2.531l-6.706 4.268A1.5 1.5 0 0 1 3 12.267V3.732Z" />
+                    </svg>
+
+
+                </button>
+
+                <button type="button" class="toolbar-btn" data-on-click="@post('/step')" title="Step">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-footprints-icon lucide-footprints">
+                        <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/>
+                        <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/>
+                        <path d="M16 17h4"/><path d="M4 13h4"/>
+                    </svg>
+                </button>
+
+                <!-- Toggle Stop / Resume Button -->
+                <button 
+                    type="button" 
+                    class="toolbar-btn" 
+                    id="toggle-action-btn" 
+                    title="Stop">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                        <rect width="10" height="10" x="3" y="3" rx="1.5" />
+                    </svg>
+                </button>
+
+
+                <button type="button" class="toolbar-btn" data-on-click="@post('/abort')" title="Abort">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                        <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
+                    </svg>
+                </button>
+
+                <button type="button" class="toolbar-btn" data-on-click="@post('/stec')" title="STEC">
+                    <img src="stec-logo.png" alt="STEC" class="btn-logo">
+                </button>
+
+                <button type="button" class="toolbar-btn" data-on-click="@post('/stsc')" title="STSC">
+                    <img src="stsc-logo.png" alt="STSC" class="btn-logo">
+                </button>
+                </div>
+            </nav>
         </main>
 
         <script type="module" src="/drag.js"></script>
         <script type="module" src="/datastar.js"></script>
+        <script type="module" src="/toggle_stop_resume.js"></script>
     </body>
 </html>
