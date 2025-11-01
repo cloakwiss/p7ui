@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="panel-content">
-                <form class="input-group" autocomplete="on">
+                <!-- <form class="input-group" autocomplete="on">
                     <label for="target_path">Target Executable</label>
                     <input
                         required
@@ -28,6 +28,7 @@
                         data-bind="target"
                     />
                 </form>
+                
 
                 <form class="input-group">
                     <label for="hookdll_path">Hook DLL</label>
@@ -40,7 +41,23 @@
                         placeholder="Selected hookdll will appear here"
                         data-bind="hook"
                     />
-                </form>
+                </form> -->
+
+                <div class="input-group">
+				    <label for="target_path">Target Executable</label>
+				    <input type="text" id="target_path" placeholder="Selected target executable path will appear here"
+					    readonly>
+			    </div>
+
+			    <div class="input-group">
+				    <label for="hookdll_path">Hook DLL</label>
+				    <input type="text" id="hookdll_path" placeholder="Selected hookdll will appear here" readonly>
+			    </div>
+
+                <div class="button-group">
+				    <button id="target_pick" data-on-click="@get('/picktarget')">Pick Target</button>
+				    <button id="hookdll_pick" data-on-click="@get('/pickhookdll')">Pick Hookdll</button>
+			    </div>
                 </div>
                 
 

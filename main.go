@@ -2,10 +2,10 @@ package main
 
 import (
 	_ "embed"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"os/exec"
@@ -13,6 +13,8 @@ import (
 
 	"github.com/cloakwiss/p7ui/src"
 	"github.com/go-chi/chi/v5"
+	"github.com/sqweek/dialog"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 var (
@@ -46,7 +48,22 @@ type (
 	}
 )
 
+func pickFile() (string, error) {
+	selected, err := dialog.File().Title("Choose a file").Load()
+	if err != nil {
+		return "Error in Picking File", nil
+	}
+
+	abs, err := filepath.Abs(selected)
+	if err != nil {
+		return selected, nil
+	}
+
+	return abs, nil
+}
+
 func main() {
+
 	for {
 		func() {
 
@@ -106,31 +123,63 @@ func main() {
 				})
 			}
 			{ // routes
-				router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
-					var target = target{}
 
+				router.Get("/picktarget", func(w http.ResponseWriter, r *http.Request) {
+					name, error := pickFile()
+					if error != nil {
+						app.Log.Error("Error in file picking")
+					}
+					app.TargetPath = name
 					defer r.Body.Close()
+					sse := datastar.NewSSE(w, r)
+					container1 := datastar.WithSelectorID("target_path")
 
-					if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
-						log.Println("Decode failed:", err)
-						http.Error(w, "Invalid JSON", http.StatusBadRequest)
+					input := `<input type="text" id="target_path" placeholder="Selected target executable path will appear here" value="` + name + `" readonly>`
+					if err := sse.PatchElements(input, container1); err != nil {
 						return
 					}
-					// valid the target data
-					if target.Executable == "" {
-						app.Log.Error("Target not Picked.")
-					} else {
-						app.TargetPath = target.Executable
-					}
-
-					if target.Hookdll == "" {
-						app.Log.Error("Hookdll not Picked.")
-					} else {
-						app.HookDllPath = target.Hookdll
-					}
-
-					log.Printf("Data: %+v", target)
 				})
+				router.Get("/pickhookdll", func(w http.ResponseWriter, r *http.Request) {
+					name, error := pickFile()
+					if error != nil {
+						app.Log.Error("Error in file picking")
+					}
+					app.HookDllPath = name
+					defer r.Body.Close()
+					sse := datastar.NewSSE(w, r)
+					container1 := datastar.WithSelectorID("hookdll_path")
+
+					input := `<input type="text" id="hookdll_path" placeholder="Selected hookdll will appear here" value="` + name + `" readonly>`
+					if err := sse.PatchElements(input, container1); err != nil {
+						return
+					}
+				})
+
+				// router.Post("/target_pick", func(w http.ResponseWriter, r *http.Request) {
+				// 	var target = target{}
+
+				// 	defer r.Body.Close()
+
+				// 	if err := json.NewDecoder(r.Body).Decode(&target); err != nil {
+				// 		log.Println("Decode failed:", err)
+				// 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+				// 		return
+				// 	}
+				// 	// valid the target data
+				// 	if target.Executable == "" {
+				// 		app.Log.Error("Target not Picked.")
+				// 	} else {
+				// 		app.TargetPath = target.Executable
+				// 	}
+
+				// 	if target.Hookdll == "" {
+				// 		app.Log.Error("Hookdll not Picked.")
+				// 	} else {
+				// 		app.HookDllPath = target.Hookdll
+				// 	}
+
+				// 	log.Printf("Data: %+v", target)
+				// })
 
 				router.Post("/spawnp7", func(w http.ResponseWriter, r *http.Request) {
 					if app.TargetPath != "" && app.HookDllPath != "" {
