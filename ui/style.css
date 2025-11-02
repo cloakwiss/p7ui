@@ -60,7 +60,7 @@ body {
 
                 & input {
                     padding: 10px;
-                    background-color: var(--bg-tertiary);
+                    background-color: #3d3d3d;
                     border: 1px solid var(--border-color);
                     border-radius: 4px;
                     color: var(--text-primary);
@@ -136,49 +136,49 @@ body {
             }
 
             & article.pane {
-                background-color: var(--bg-secondary);
                 border-radius: 8px;
                 padding: 20px;
-                box-shadow: 0 2px 8px var(--shadow);
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
                 overflow: hidden;
 
-                & h3 {
+                /* & h3 {
                     margin: 0 0 15px 0;
                     color: var(--accent-color);
                     font-size: 1.2rem;
                     flex-shrink: 0;
-                }
+                } */
 
                 & div.pane-content {
                     flex: 1;
                     min-height: 0;
                     overflow: auto;
                     scroll-behavior: smooth;
-                    background-color: var(--bg-primary);
-                    border: 1px solid var(--border-color);
+                    background-color: var(--bg-secondary);
+                    border: 2px solid var(--border-color);
                     border-radius: 4px;
-                    padding: 15px;
 
                     & table.console-table {
                         width: 100%;
                         border-collapse: collapse;
 
+
                         & thead {
+                            
                             position: sticky;
                             top: 0;
                             background-color: var(--bg-primary);
                             z-index: 1;
 
+
                             & tr th{
                                 text-align: left;
-                                padding: 8px;
                                 font-weight: 600;
-                                background-color: color-mix(in oklch, var(--even-row) 55%, var(--bg-primary) 100%);
                                 color: var(--accent-color);
                                 border-bottom: 2px solid var(--border-color);
+                                background-color:#3d3d3d ;
+
                             }
 
                             & td {
@@ -192,11 +192,11 @@ body {
                         & tbody {
 
                             & tr:nth-child(even) {
-                                background-color: color-mix(in oklch, var(--even-row) 25%, var(--bg-primary) 100%);
+                                background-color: #313131;
                             }
 
                             & tr:nth-child(odd) {
-                                background-color: color-mix(in oklch, var(--odd-row) 25%, var(--bg-primary) 100%);
+                                background-color: #2d2d2d;
                             }
 
                             & td {
@@ -252,7 +252,7 @@ main.app-container {
 /* Sidebar */
 aside.control-panel {
     width: var(--sidebar-width);
-    background-color-color: #2d2d2d;
+    background-color: #2d2d2d;
     border-right: 1px solid #4d4d4d;
     display: flex;
     flex-direction: column;
@@ -263,7 +263,7 @@ aside.control-panel {
 .panel-header {
     padding: 20px;
     border-bottom: 1px solid #4d4d4d;
-    background-color-color: #252525;
+    background-color: #252525;
 }
 
 .panel-header h2 {
@@ -296,7 +296,7 @@ aside.control-panel {
 .input-group textarea {
     width: 100%;
     padding: 10px;
-    background-color-color: #3d3d3d;
+    background-color: #3d3d3d;
     border: 1px solid #4d4d4d;
     border-radius: 6px;
     color: #e0e0e0;
@@ -334,7 +334,7 @@ section.content-area {
     left: var(--sidebar-width);
     right: 0;
     height: var(--toolbar-height);
-    background-color-color: #242424;
+    background-color: #242424;
     border-top: 1px solid #4d4d4d;
     display: flex;
     justify-content: center;       
@@ -352,7 +352,7 @@ section.content-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color-color: #252525;    
+    background-color: #252525;    
     border: 1px solid #4d4d4d;
     border-radius: 6px;
     cursor: pointer;
@@ -367,7 +367,7 @@ section.content-area {
 }
 
 .toolbar-btn:hover {
-    background-color-color: #353535;
+    background-color: #353535;
     border-color: #5dd5f6;
 }
 
@@ -394,3 +394,14 @@ section.content-area {
     }
 }
 
+.table_head {
+    padding: 8px 0 8px 28px;
+}
+
+h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
