@@ -12,6 +12,7 @@
     --odd-row: oklch(0.8309 0.1 215.79);
     --even-row: oklch(0.8309 0.0747 215.79);
     --shadow: rgba(0, 0, 0, 0.3);
+    --top-toolbar-height: 40px;
 }
 
 * {
@@ -137,7 +138,7 @@ body {
 
             & article.pane {
                 border-radius: 8px;
-                padding: 20px;
+                padding: 4px 21px 16px 21px;
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
@@ -238,7 +239,7 @@ button:hover svg {
 
 /* Shared layout variables */
 :root {
-    --sidebar-width: 300px;  
+    --sidebar-width: 000px;  
     --toolbar-height: 50px;  
     --content-gap: 20px;
 }
@@ -324,7 +325,8 @@ section.content-area {
     flex-direction: column;
     overflow-y: auto;
     height: 100vh;
-    padding-bottom: calc(var(--toolbar-height) + var(--content-gap));
+    padding-top: var(--top-toolbar-height);
+    padding-bottom: calc(var(--toolbar-height) + var(--content-gap) - 14px);
     box-sizing: border-box;
 }
 
@@ -405,4 +407,49 @@ h3 {
     color: #e0e0e0;
     margin-bottom: 8px;
     padding-left: 4px;
+}
+
+.top-toolbar {
+    position: absolute; /* overlay on top of main content */
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--top-toolbar-height);
+    display: flex;
+    align-items: center;
+    background-color: rgba(32, 35, 42, 0.95); /* slightly transparent for layered effect */
+    border-bottom: 1px solid #4d4d4d; /* 1px separator border */
+    padding: 0 1.5rem;
+    z-index: 999; /* stays above all other content */
+    backdrop-filter: blur(6px); /* adds subtle glass-like effect */
+}
+
+.toolbar-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.top-tab {
+    background-color: #2d2d2d;
+    border: 1px solid #4d4d4d;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.top-tab:hover {
+    background-color: #353535;
+    border-color: #5dd5f6;
+    color: #5dd5f6;
+}
+
+/* Remove the margin pushing content down */
+.app-container {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
 }
