@@ -414,7 +414,7 @@ h3 {
     top: 0;
     left: 0;
     right: 0;
-    height: var(--top-toolbar-height);
+    height: calc(var(--top-toolbar-height) - 10px);
     display: flex;
     align-items: center;
     background-color: rgba(32, 35, 42, 0.95); /* slightly transparent for layered effect */
@@ -429,23 +429,38 @@ h3 {
     gap: 10px;
 }
 
+.toolbar-tabs {
+    display: flex;
+    gap: 0; /* no gap between tabs */
+}
+
 .top-tab {
-    background-color: #2d2d2d;
+    background: none;
     border: 1px solid #4d4d4d;
+    border-bottom: none; 
+    border-top: none;
+    height: calc(var(--top-toolbar-height) - 10px);
     color: #e0e0e0;
     font-size: 14px;
     font-weight: 500;
-    border-radius: 6px;
-    padding: 6px 14px;
+    padding: 0 20px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s ease;
 }
-
 .top-tab:hover {
-    background-color: #353535;
+    color: #5dd5f6;
     border-color: #5dd5f6;
+}
+.top-tab.active {
+    background-color: #20232a;
+    border-color: #5dd5f6;
+    border-bottom: 1px solid #20232a;
     color: #5dd5f6;
 }
+
 
 /* Remove the margin pushing content down */
 .app-container {
@@ -453,3 +468,13 @@ h3 {
     height: 100vh;
     overflow: hidden;
 }
+
+.ascii-logo {
+    font-family: monospace;
+    font-size: 4px;
+    line-height: 1.1;
+    margin: 0;
+    white-space: pre; /* preserve ASCII alignment */
+    padding: 11px 28px 6px 0;
+}
+
