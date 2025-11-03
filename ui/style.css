@@ -141,7 +141,6 @@ body {
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
-                overflow: hidden;
 
                 /* & h3 {
                     margin: 0 0 15px 0;
@@ -162,7 +161,6 @@ body {
                     & table.console-table {
                         width: 100%;
                         border-collapse: collapse;
-
 
                         & thead {
                             

@@ -63,25 +63,6 @@
 
 
                 </nav>
-            <!-- <dialog id="dialog-box" class="control-panel">
-                <div class="panel-content">
-
-                <div class="input-group">
-				    <label for="target_path">Target Executable</label>
-				    <input type="text" id="target_path" placeholder="Selected target executable path will appear here" required autocomplete="on">
-			    </div>
-
-			    <div class="input-group">
-				    <label for="hookdll_path">Hook DLL</label>
-				    <input type="text" id="hookdll_path" placeholder="Selected hookdll will appear here" required autocomplete="on">
-			    </div>
-
-                <div class="button-group">
-				    <button id="target_pick" data-on-click="@get('/picktarget')">Pick Target</button>
-				    <button id="hookdll_pick" data-on-click="@get('/pickhookdll')">Pick Hookdll</button>
-			    </div>
-                </div>
-            </dialog> -->
 
             <section
                 class="content-area"
@@ -97,7 +78,7 @@
                                     <th class="table_head">Level</th>
                                     <th class="table_head">Log</th>
                             </thead>
-                            <tbody id="console"></tbody>
+                            <tbody id="console" style="font-family: monospace;"></tbody>
                         </table>
                     </div>
                 </article>
@@ -110,7 +91,7 @@
                             id="hook-details"
                             aria-label="Hook details"
                         >
-                            <tbody id="hooks"></tbody>
+                            <tbody id="hooks" style="font-family: monospace;"></tbody>
                         </table>
                     </div>
                 </article>
@@ -139,15 +120,17 @@
                     </svg>
                 </button>
 
-                <!-- Toggle Stop / Resume Button -->
-                <button 
-                    type="button" 
-                    class="toolbar-btn" 
-                    id="toggle-action-btn" 
-                    title="Stop">
+                <button type="button" class="toolbar-btn" data-on-click="@post('/stop')" title="stop">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
                         <rect width="10" height="10" x="3" y="3" rx="1.5" />
                     </svg>
+                </button>
+
+                <button type="button" class="toolbar-btn" data-on-click="@post('/resume')" title="resume">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
                 </button>
 
 
@@ -170,7 +153,6 @@
 
         <script type="module" src="/drag.js"></script>
         <script type="module" src="/datastar.js"></script>
-        <script type="module" src="/toggle_stop_resume.js"></script>
 
         <!-- closing control panel  -->
         <script>
@@ -180,6 +162,27 @@
             if (dropdown.hasAttribute("open") && !dropdown.contains(event.target)) {
                 dropdown.removeAttribute("open");
             }
+            });
+
+            document.addEventListener("DOMContentLoaded", () => {
+            const consoleBody = document.getElementById("console");
+            const hookBody = document.getElementById("hooks");
+
+
+                const observer = new MutationObserver(() => {
+                    const console_paneContent = consoleBody.closest(".pane-content");
+                    const hooks_paneContent = hookBody.closest(".pane-content");
+
+                    if (console_paneContent) {
+                        console_paneContent.scrollTop = console_paneContent.scrollHeight;
+                    }
+                    if (hooks_paneContent) {
+                        hooks_paneContent.scrollTop = hooks_paneContent.scrollHeight;
+                    }
+                });
+
+                observer.observe(consoleBody, { childList: true });
+                observer.observe(hookBody, { childList: true });
             });
         </script>
 
