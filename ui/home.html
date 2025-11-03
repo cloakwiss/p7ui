@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dropdown with Input and Button (No JS)</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+    }
+
+    details {
+        position: relative;
+        display: inline-block;
+    }
+
+    summary {
+        list-style: none;
+        background-color: #0078d4;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        user-select: none;
+        font-size: 16px;
+    }
+
+    /* Remove default triangle icon */
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    /* Dropdown box styling */
+    details[open] .dropdown-content {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .dropdown-content {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        background-color: #f9f9f9;
+        min-width: 260px;
+        padding: 15px;
+        box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.25s ease;
+    }
+
+    .dropdown-content input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .dropdown-content button {
+        width: 100%;
+        padding: 8px;
+        background-color: #0078d4;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+    }
+
+    .dropdown-content button:hover {
+        background-color: #005fa3;
+    }
+</style>
+</head>
+<body>
+
+<details>
+    <summary>Open Menu </summary>
+    <div class="dropdown-content">
+        <input type="text" placeholder="Enter text here...">
+        <button>Submit</button>
+    </div>
+</details>
+
+</body>
+</html>

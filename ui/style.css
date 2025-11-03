@@ -33,12 +33,11 @@ body {
         height: 100vh;
         gap: 20px;
 
-        & aside.control-panel {
+        & .control-panel {
             flex-shrink: 0;
             width: 300px;
             background-color: var(--bg-secondary);
             box-shadow: 0 2px 8px var(--shadow);
-            display: flex;
             flex-direction: column;
             gap: 20px;
 
@@ -251,15 +250,17 @@ main.app-container {
     overflow: hidden; /* prevent scrollbars on entire app */
 }
 
-/* Sidebar */
-aside.control-panel {
+/* .control-panel {
+    position: absolute;
+    z-index: 2;
     width: var(--sidebar-width);
     background-color: #2d2d2d;
     border-right: 1px solid #4d4d4d;
-    display: flex;
     flex-direction: column;
-    height: 100vh; /* Full height including behind toolbar */
-}
+    height: 270px;
+    width: 400px;
+    border-radius: 8px;
+} */
 
 /* Header */
 .panel-header {
@@ -389,14 +390,6 @@ section.content-area {
     object-fit: contain;
 }
 
-
-/* Responsive layout */
-@media (max-width: 768px) {
-    :root {
-        --sidebar-width: 240px;
-    }
-}
-
 .table_head {
     padding: 8px 0 8px 28px;
 }
@@ -410,29 +403,30 @@ h3 {
 }
 
 .top-toolbar {
-    position: absolute; /* overlay on top of main content */
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     height: calc(var(--top-toolbar-height) - 10px);
     display: flex;
+    flex-direction: row;
     align-items: center;
-    background-color: rgba(32, 35, 42, 0.95); /* slightly transparent for layered effect */
-    border-bottom: 1px solid #4d4d4d; /* 1px separator border */
+    background-color: rgba(32, 35, 42, 0.95);
+    border-bottom: 1px solid #4d4d4d;
     padding: 0 1.5rem;
-    z-index: 999; /* stays above all other content */
-    backdrop-filter: blur(6px); /* adds subtle glass-like effect */
+    z-index: 999;
+    backdrop-filter: blur(6px);
 }
 
-.toolbar-tabs {
+/* .toolbar-tabs {
     display: flex;
     gap: 10px;
-}
+} */
 
 .toolbar-tabs {
     display: flex;
-    gap: 0; /* no gap between tabs */
-}
+    gap: 0; 
+} 
 
 .top-tab {
     background: none;
@@ -444,10 +438,8 @@ h3 {
     font-size: 14px;
     font-weight: 500;
     padding: 0 20px;
-    cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
     transition: all 0.2s ease;
 }
 .top-tab:hover {
@@ -461,17 +453,63 @@ h3 {
     color: #5dd5f6;
 }
 
-
-/* Remove the margin pushing content down */
-.app-container {
+/* Dropdown base */
+.dropdown {
     position: relative;
+}
+
+.dropdown summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropdown summary::-webkit-details-marker {
+    display: none; /* remove default triangle */
+}
+
+/* Dropdown box styling */
+.dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #2d2d2d;
+    border: 1px solid #4d4d4d;
+    border-radius: 8px;
+    width: 400px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.25s ease;
+    z-index: 1000;
+}
+
+/* Open state animation */
+.dropdown[open] .dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Highlight the Target tab when open */
+.dropdown[open] > summary {
+    color: #5dd5f6;
+    border-color: #5dd5f6;
+}
+
+
+.app-container {
     height: 100vh;
     overflow: hidden;
 }
 
 .ascii-logo {
     font-family: monospace;
-    font-size: 4px;
+    font-size: 3px;
     line-height: 1.1;
     margin: 0;
     white-space: pre; /* preserve ASCII alignment */

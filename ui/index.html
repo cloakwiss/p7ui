@@ -14,34 +14,56 @@
         <main class="app-container">
             <!-- Top Toolbar -->
                 <nav class="top-toolbar">
-                    <pre class="ascii-logo">
-                //    __________.__         _________ __                 
-                //    \______   \__| ____  /   _____//  |_  ____ ______  
-                //     |    |  _/  |/    \ \_____  \\   __\/  _ \\____ \ 
-                //     |    |   \  |   |  \/        \|  | (  <_> )  |_> >
-                //     |______  /__|___|  /_______  /|__|  \____/|   __/ 
-                //            \/        \/        \/             |__|    
-                    </pre>
-                <!-- <pre class="ascii-logo">
-                        //    '########::'####:'##::: ##::'######::'########::'#######::'########::
-                        //     ##.... ##:. ##:: ###:: ##:'##... ##:... ##..::'##.... ##: ##.... ##:
-                        //     ##:::: ##:: ##:: ####: ##: ##:::..::::: ##:::: ##:::: ##: ##:::: ##:
-                        //     ########::: ##:: ## ## ##:. ######::::: ##:::: ##:::: ##: ########::
-                        //     ##.... ##:: ##:: ##. ####::..... ##:::: ##:::: ##:::: ##: ##.....:::
-                        //     ##:::: ##:: ##:: ##:. ###:'##::: ##:::: ##:::: ##:::: ##: ##::::::::
-                        //     ########::'####: ##::. ##:. ######::::: ##::::. #######:: ##::::::::
-                        //    ........:::....::..::::..:::......::::::..::::::.......:::..::::::::: 
+                    <!-- <pre class="ascii-logo">
+                    __________.__         _________ __                 
+                    \______   \__| ____  /   _____//  |_  ____ ______  
+                     |    |  _/  |/    \ \_____  \\   __\/  _ \\____ \ 
+                     |    |   \  |   |  \/        \|  | (  <_> )  |_> >
+                     |______  /__|___|  /_______  /|__|  \____/|   __/ 
+                            \/        \/        \/             |__|    
                     </pre> -->
+                    <pre class="ascii-logo">
+                        '########::'####:'##::: ##::'######::'########::'#######::'########:
+                         ##.... ##:. ##:: ###:: ##:'##... ##:... ##..::'##.... ##: ##.... ##
+                         ##:::: ##:: ##:: ####: ##: ##:::..::::: ##:::: ##:::: ##: ##:::: ##
+                         ########::: ##:: ## ## ##:. ######::::: ##:::: ##:::: ##: ########
+                         ##.... ##:: ##:: ##. ####::..... ##:::: ##:::: ##:::: ##: ##
+                         ##:::: ##:: ##:: ##:. ###:'##::: ##:::: ##:::: ##:::: ##: ##
+                         ########::'####: ##::. ##:. ######::::: ##::::. #######:: ##
+                    </pre>
                     <div class="toolbar-tabs">
-                        <button class="top-tab" id="target-tab">Target</button>
+                        <details class="dropdown" id="target-dropdown">
+                            <summary class="top-tab">Target </summary>
+                            <div class="dropdown-content">
+                                <div class="panel-content">
+                                    <div class="input-group">
+                                        <label for="target_path">Target Executable</label>
+                                        <input type="text" id="target_path"
+                                        placeholder="Selected target executable path will appear here"
+                                        required autocomplete="on">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="hookdll_path">Hook DLL</label>
+                                        <input type="text" id="hookdll_path"
+                                        placeholder="Selected hookdll will appear here"
+                                        required autocomplete="on">
+                                    </div>
+
+                                    <div class="button-group">
+                                        <button id="target_pick" data-on-click="@get('/picktarget')">Pick Target</button>
+                                        <button id="hookdll_pick" data-on-click="@get('/pickhookdll')">Pick Hookdll</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
                         <button class="top-tab" id="help-tab">Help</button>
                     </div>
-                </nav>
-            <!-- <aside class="control-panel">
-                <div class="panel-header">
-                    <h2>Control Panel</h2>
-                </div>
 
+
+                </nav>
+            <!-- <dialog id="dialog-box" class="control-panel">
                 <div class="panel-content">
 
                 <div class="input-group">
@@ -59,9 +81,7 @@
 				    <button id="hookdll_pick" data-on-click="@get('/pickhookdll')">Pick Hookdll</button>
 			    </div>
                 </div>
-                
-
-            </aside> -->
+            </dialog> -->
 
             <section
                 class="content-area"
@@ -151,5 +171,19 @@
         <script type="module" src="/drag.js"></script>
         <script type="module" src="/datastar.js"></script>
         <script type="module" src="/toggle_stop_resume.js"></script>
+
+        <!-- closing control panel  -->
+        <script>
+            document.addEventListener("click", function(event) {
+            const dropdown = document.getElementById("target-dropdown");
+
+            if (dropdown.hasAttribute("open") && !dropdown.contains(event.target)) {
+                dropdown.removeAttribute("open");
+            }
+            });
+        </script>
+
+
+
     </body>
 </html>
