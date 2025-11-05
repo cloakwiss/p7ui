@@ -507,10 +507,10 @@ h3 {
 
 .ascii-logo {
     font-family: monospace;
-    font-size: 3px;
+    font-size:4px;
     line-height: 1.1;
     margin: 0;
-    white-space: pre; /* preserve ASCII alignment */
+    white-space: pre;
     padding: 11px 28px 6px 0;
 }
 

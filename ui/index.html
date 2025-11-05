@@ -14,15 +14,15 @@
         <main class="app-container">
             <!-- Top Toolbar -->
                 <nav class="top-toolbar">
-                    <!-- <pre class="ascii-logo">
+                    <pre class="ascii-logo">
                     __________.__         _________ __                 
                     \______   \__| ____  /   _____//  |_  ____ ______  
                      |    |  _/  |/    \ \_____  \\   __\/  _ \\____ \ 
                      |    |   \  |   |  \/        \|  | (  <_> )  |_> >
                      |______  /__|___|  /_______  /|__|  \____/|   __/ 
                             \/        \/        \/             |__|    
-                    </pre> -->
-                    <pre class="ascii-logo">
+                    </pre>
+                    <!-- <pre class="ascii-logo">
                         '########::'####:'##::: ##::'######::'########::'#######::'########:
                          ##.... ##:. ##:: ###:: ##:'##... ##:... ##..::'##.... ##: ##.... ##
                          ##:::: ##:: ##:: ####: ##: ##:::..::::: ##:::: ##:::: ##: ##:::: ##
@@ -30,24 +30,26 @@
                          ##.... ##:: ##:: ##. ####::..... ##:::: ##:::: ##:::: ##: ##
                          ##:::: ##:: ##:: ##:. ###:'##::: ##:::: ##:::: ##:::: ##: ##
                          ########::'####: ##::. ##:. ######::::: ##::::. #######:: ##
-                    </pre>
+                    </pre> -->
                     <div class="toolbar-tabs">
                         <details class="dropdown" id="target-dropdown">
-                            <summary class="top-tab">Target </summary>
+                            <summary class="top-tab" id="target_btn">Target </summary>
                             <div class="dropdown-content">
                                 <div class="panel-content">
                                     <div class="input-group">
                                         <label for="target_path">Target Executable</label>
                                         <input type="text" id="target_path"
                                         placeholder="Selected target executable path will appear here"
-                                        required autocomplete="on">
+                                        required autocomplete="on" ondblclick="document.getElementById('target_pick').click()"
+                                        title="double-click to pick">
                                     </div>
 
                                     <div class="input-group">
                                         <label for="hookdll_path">Hook DLL</label>
                                         <input type="text" id="hookdll_path"
                                         placeholder="Selected hookdll will appear here"
-                                        required autocomplete="on">
+                                        required autocomplete="on" ondblclick="document.getElementById('hookdll_pick').click()"
+                                        title="double-click to pick">
                                     </div>
 
                                     <div class="button-group">
@@ -106,13 +108,13 @@
                     </svg>
                 </button> -->
 
-                <button type="button" class="toolbar-btn" data-on-click="@get('/spawnp7')" title="Start">
+                <button type="button" class="toolbar-btn" data-on-click="@get('/spawnp7')" title="Start (Short-cut: / + s)" id="start_btn">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                         <path d="M3 3.732a1.5 1.5 0 0 1 2.305-1.265l6.706 4.267a1.5 1.5 0 0 1 0 2.531l-6.706 4.268A1.5 1.5 0 0 1 3 12.267V3.732Z" />
                     </svg>
                 </button>
 
-                <button type="button" class="toolbar-btn" data-on-click="@post('/step')" title="Step">
+                <button type="button" class="toolbar-btn" data-on-click="@post('/step')" title="Step (Short-cut: / + z)" id="step_btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-footprints-icon lucide-footprints">
                         <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/>
                         <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/>
@@ -120,13 +122,13 @@
                     </svg>
                 </button>
 
-                <button type="button" class="toolbar-btn" data-on-click="@post('/stop')" title="stop">
+                <button type="button" class="toolbar-btn" data-on-click="@post('/stop')" title="stop (Short-cut: / + x)" id="stop_btn">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
                         <rect width="10" height="10" x="3" y="3" rx="1.5" />
                     </svg>
                 </button>
 
-                <button type="button" class="toolbar-btn" data-on-click="@post('/resume')" title="resume">
+                <button type="button" class="toolbar-btn" data-on-click="@post('/resume')" title="resume (Short-cut: / + r)" id="resume_btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -134,17 +136,17 @@
                 </button>
 
 
-                <button type="button" class="toolbar-btn" data-on-click="@post('/abort')" title="Abort">
+                <button type="button" class="toolbar-btn" data-on-click="@post('/abort')" title="Abort (Short-cut: / + a)" id="abort_btn">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                         <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
                     </svg>
                 </button>
 
-                <button type="button" class="toolbar-btn" data-on-click="@post('/stec')" title="STEC">
+                <button type="button" class="toolbar-btn" data-on-click="@post('/stec')" title="STEC (Short-cut: no short-cut)" id="stec_btn">
                     <img src="stec-logo.png" alt="STEC" class="btn-logo">
                 </button>
 
-                <button type="button" class="toolbar-btn" data-on-click="@post('/stsc')" title="STSC">
+                <button type="button" class="toolbar-btn" data-on-click="@post('/stsc')" title="STSC (click-me pls)" id="stsc_btn">
                     <img src="stsc-logo.png" alt="STSC" class="btn-logo">
                 </button>
                 </div>
@@ -184,6 +186,44 @@
                 observer.observe(consoleBody, { childList: true });
                 observer.observe(hookBody, { childList: true });
             });
+
+let slashPressed = false;
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === '/') {
+        slashPressed = true;
+        event.preventDefault();
+
+        setTimeout(() => slashPressed = false, 500);
+        return;
+    }
+
+    if (slashPressed) {
+        switch (event.key.toLowerCase()) {
+            case 's':
+                document.getElementById('start_btn')?.click();
+                break;
+            case 'r':
+                document.getElementById('resume_btn')?.click();
+                break;
+            case 'x':
+                document.getElementById('stop_btn')?.click();
+                break;
+            case 'a':
+                document.getElementById('abort_btn')?.click();
+                break;
+            case 'z':
+                document.getElementById('step_btn')?.click();
+                break;
+            case 't':
+                document.getElementById('target-btn')?.click();
+                break;
+        }
+
+        slashPressed = false;
+    }
+});
+
         </script>
 
 
