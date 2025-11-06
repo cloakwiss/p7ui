@@ -92,8 +92,13 @@ func main() {
 				http.ServeFile(w, r, "ui/toggle_stop_resume.js")
 			})
 
-			router.Get("/toggle_stop_resume.js", func(w http.ResponseWriter, r *http.Request) {
-				http.ServeFile(w, r, "ui/toggle_stop_resume.js")
+			router.Get("/filepicker.js", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/filepicker.js")
+			})
+
+			// Is this name url safe
+			router.Get("/ctrl&Shortcut.js", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "ui/ctrl&Shortcut.js")
 			})
 
 			router.Get("/stec-logo.png", func(w http.ResponseWriter, r *http.Request) {
