@@ -25,7 +25,8 @@ func handleHookClient(p7 *ApplicationState, conn net.Conn) {
 		n, err := conn.Read(buffer)
 		if n > 0 {
 			dump := hex.Dump(buffer[:n])
-			p7.HookChannel <- HookData{srno, dump}
+			p7.Log.Info(dump)
+			p7.AddHook(buffer[:n])
 			srno += 1
 		}
 		if err != nil {
@@ -114,7 +115,7 @@ func (p7 *ApplicationState) Launch() {
 				p7.Log.Debug("Hook Listener Connected")
 			}
 
-			go handleHookClient(p7, conn)
+			handleHookClient(p7, conn)
 		}
 	}()
 

@@ -16,7 +16,7 @@ type (
 	}
 
 	HookData struct {
-		srno uint
+		srno int
 		data string
 	}
 

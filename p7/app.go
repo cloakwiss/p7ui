@@ -1,7 +1,7 @@
 package p7
 
 import (
-	"encoding/hex"
+	// "encoding/hex"
 	"errors"
 	"fmt"
 	"net"
@@ -172,7 +172,12 @@ func (Hooks *HookList) AddCall(p7 *ApplicationState, buffer []byte) {
 	call.id = id.(string)
 	call.depth = depth.(uint64)
 	call.args = args
+
 	p7.Log.Info("Call struct:\n%v", call)
+
+	callDataString := fmt.Sprintf("%v", call)
+	p7.HookChannel <- HookData{len(Hooks.CallList), callDataString}
+
 	Hooks.CallList = append(Hooks.CallList, call)
 }
 
@@ -216,26 +221,28 @@ func (Hooks *HookList) AddReturn(p7 *ApplicationState, buffer []byte) {
 	ret.id = id.(string)
 	ret.depth = depth.(uint64)
 	ret.returns = returns
+
 	p7.Log.Info("Return struct:\n%v", ret)
+
+	retDataString := fmt.Sprintf("%v", ret)
+	p7.HookChannel <- HookData{len(Hooks.ReturnList), retDataString}
+
 	Hooks.ReturnList = append(Hooks.ReturnList, ret)
 }
 
 // deserializes the buffer and adds the hook into the hooks list
 func (p7 *ApplicationState) AddHook(buffer []byte) {
-	p7.Log.Debug("Just Hook Buffer: \n%v", hex.Dump(buffer[1:]))
+	// p7.Log.Debug("Just Hook Buffer: \n%v", hex.Dump(buffer[1:]))
+
 	switch buffer[0] {
 	case HOOK_CALL_ID:
 		{
-			html := fmt.Sprintf("Hook Call Bytes: \n%v", hex.Dump(buffer[1:]))
-			AppendTextById("hook-status", html, &p7.Ui)
 			p7.Hooks.AddCall(p7, buffer[1:])
 			break
 		}
 
 	case HOOK_RET_ID:
 		{
-			html := fmt.Sprintf("Hook Return Bytes: \n%v", hex.Dump(buffer[1:]))
-			AppendTextById("hook-status", html, &p7.Ui)
 			p7.Hooks.AddReturn(p7, buffer[1:])
 			break
 		}
