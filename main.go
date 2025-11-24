@@ -11,7 +11,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	"github.com/cloakwiss/p7ui/src"
+	"github.com/cloakwiss/p7ui/p7"
 	"github.com/go-chi/chi/v5"
 	"github.com/sqweek/dialog"
 	"github.com/starfederation/datastar-go/datastar"
@@ -38,14 +38,15 @@ func main() {
 
 		var (
 			closing      = make(chan struct{})
-			source, sink = src.CreateChannelBundle()
+			source, sink = p7.CreateChannelBundle()
 
 			router = chi.NewRouter()
 
-			logger = src.NewLogger(source.LogC, closing)
-			app    = src.ApplicationState{
+			logger = p7.NewLogger(source.LogC, closing)
+			app    = p7.ApplicationState{
 				Log:             logger,
 				IsCoreRunning:   false,
+				HookChannel: source.DataC,
 				HookPipeName:    `\\.\pipe\P7_HOOKS`,
 				ControlPipeName: `\\.\pipe\P7_CONTROLS`,
 				LogPipeName:     `\\.\pipe\P7_LOGS`,
@@ -147,7 +148,7 @@ func main() {
 				fmt.Println(r.Header)
 				if app.TargetPath != "" && app.HookDllPath != "" {
 					if !app.IsCoreRunning {
-						go app.Launch(source.DataC)
+						go app.Launch()
 						app.Log.Info("UI Started")
 					} else {
 						app.Log.Error("Already Running a P7 instance.")
@@ -156,29 +157,29 @@ func main() {
 					app.Log.Error("Target Path and HookDll path is empty.")
 				}
 
-				src.MainLoop(w, r, closing, sink)
+				p7.MainLoop(w, r, closing, sink)
 			})
 			router.Post("/stop", func(w http.ResponseWriter, r *http.Request) {
 				app.Log.Info("Stop clicked")
-				src.SendControl(&app, src.Stop)
+				p7.SendControl(&app, p7.Stop)
 			})
 
 			router.Post("/resume", func(w http.ResponseWriter, r *http.Request) {
 				app.Log.Info("Resume clicked")
-				src.SendControl(&app, src.Resume)
+				p7.SendControl(&app, p7.Resume)
 			})
 			router.Post("/abort", func(w http.ResponseWriter, r *http.Request) {
 				app.Log.Info("Abort clicked")
-				src.SendControl(&app, src.Abort)
+				p7.SendControl(&app, p7.Abort)
 				close(closing)
 			})
 			router.Post("/step", func(w http.ResponseWriter, r *http.Request) {
 				app.Log.Info("Step clicked")
 
 				if app.StepState {
-					src.SendControl(&app, src.STEC)
+					p7.SendControl(&app, p7.STEC)
 				} else {
-					src.SendControl(&app, src.STSC)
+					p7.SendControl(&app, p7.STSC)
 				}
 
 				// To alter step to start at end of calls
@@ -186,14 +187,14 @@ func main() {
 			})
 			router.Post("/stec", func(w http.ResponseWriter, r *http.Request) {
 				app.Log.Info("STEC clicked")
-				src.SendControl(&app, src.STEC)
+				p7.SendControl(&app, p7.STEC)
 
 				// To properly fall into the next call start
 				app.StepState = false
 			})
 			router.Post("/stsc", func(w http.ResponseWriter, r *http.Request) {
 				app.Log.Info("STSC clicked")
-				src.SendControl(&app, src.STSC)
+				p7.SendControl(&app, p7.STSC)
 
 				// To properly fall into the next call end
 				app.StepState = true
