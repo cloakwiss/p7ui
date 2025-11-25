@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"path/filepath"
-	"time"
-
 	"os/exec"
+	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/cloakwiss/p7ui/p7"
 	"github.com/go-chi/chi/v5"
@@ -35,10 +34,11 @@ func pickFile() (string, error) {
 
 func main() {
 	func() {
-
 		var (
-			closing      = make(chan struct{})
-			source, sink = p7.CreateChannelBundle()
+			dbconn, closedb = p7.OpenDB()
+			search          = p7.NewSearch(dbconn, 256)
+			closing         = make(chan struct{})
+			source, sink    = p7.CreateChannelBundle()
 
 			router = chi.NewRouter()
 
@@ -46,12 +46,18 @@ func main() {
 			app    = p7.ApplicationState{
 				Log:             logger,
 				IsCoreRunning:   false,
-				HookChannel: source.DataC,
+				HookChannel:     source.DataC,
 				HookPipeName:    `\\.\pipe\P7_HOOKS`,
 				ControlPipeName: `\\.\pipe\P7_CONTROLS`,
 				LogPipeName:     `\\.\pipe\P7_LOGS`,
+				QueryFunction:   search,
 			}
 		)
+		defer func() {
+			if er := closedb(); er != nil {
+				log.Fatalln("Failed to close the db connection")
+			}
+		}()
 
 		{ // assets
 			router.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -109,10 +115,8 @@ func main() {
 			router.Get("/stsc-logo.png", func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, "ui/stsc-logo.png")
 			})
-
 		}
 		{ // routes
-
 			router.Get("/picktarget", func(w http.ResponseWriter, r *http.Request) {
 				name, error := pickFile()
 				if error != nil {
@@ -198,6 +202,11 @@ func main() {
 
 				// To properly fall into the next call end
 				app.StepState = true
+			})
+
+			router.Get("/search/{symbol}", func(w http.ResponseWriter, r *http.Request) {
+				functionSymbol := chi.URLParam(r, "symbol")
+				p7.Get(&p7.ApplicationState.QueryFunction, functionSymbol)
 			})
 		}
 

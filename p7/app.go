@@ -30,6 +30,7 @@ type ApplicationState struct {
 	ControlPipe     net.Conn
 	Page            Page
 	Hooks           HookList
+	QueryFunction   Search
 }
 
 type HookList struct {
