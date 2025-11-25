@@ -101,37 +101,65 @@ func (p7 *ApplicationState) SendControl(controlSignal Control) {
 // Template Getters (to be implemented generally for all funcs) -------------------------------- //
 // --------------------------------------------------------------------------------------------- //
 func GetCallStructure(id string) ([]deserialize.Values, error) {
-	if id == "MessageBoxA" {
-		args := make([]deserialize.Values, 4)
+	switch id {
+	case "MessageBoxA":
+		{
+			args := make([]deserialize.Values, 4)
 
-		args[0].Name = "hWnd"
-		args[0].Val = uint64(0)
+			args[0].Name = "hWnd"
+			args[0].Val = uint64(0)
 
-		args[1].Name = "lpText"
-		args[1].Val = string("")
+			args[1].Name = "lpText"
+			args[1].Val = string("")
 
-		args[2].Name = "lpCaption"
-		args[2].Val = string("")
+			args[2].Name = "lpCaption"
+			args[2].Val = string("")
 
-		args[3].Name = "uType"
-		args[3].Val = uint32(0)
+			args[3].Name = "uType"
+			args[3].Val = uint32(0)
 
-		return args, nil
-	} else {
-		return nil, errors.New("Unimplemented function id")
+			return args, nil
+		}
+
+	case "Sleep":
+		{
+			args := make([]deserialize.Values, 1)
+
+			args[0].Name = "dwMilliseconds"
+			args[0].Val = uint32(0)
+
+			return args, nil
+		}
+
+	default:
+		{
+			return nil, errors.New("Unimplemented function id")
+		}
 	}
 }
 
 func GetReturnStructure(id string) ([]deserialize.Values, error) {
-	if id == "MessageBoxA" {
-		args := make([]deserialize.Values, 1)
+	switch id {
+	case "MessageBoxA":
+		{
+			args := make([]deserialize.Values, 1)
 
-		args[0].Name = "result"
-		args[0].Val = int32(0)
+			args[0].Name = "result"
+			args[0].Val = int32(0)
 
-		return args, nil
-	} else {
-		return nil, errors.New("Unimplemented function id")
+			return args, nil
+		}
+
+	case "Sleep":
+		{
+			args := make([]deserialize.Values, 0)
+			return args, nil
+		}
+
+	default:
+		{
+			return nil, errors.New("Unimplemented function id")
+		}
 	}
 }
 
