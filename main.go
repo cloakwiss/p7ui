@@ -39,6 +39,7 @@ func main() {
 			search          = p7.NewSearch(dbconn, 256)
 			closing         = make(chan struct{})
 			source, sink    = p7.CreateChannelBundle()
+			descChan        = make(chan string)
 
 			router = chi.NewRouter()
 
@@ -161,7 +162,7 @@ func main() {
 					app.Log.Error("Target Path and HookDll path is empty.")
 				}
 
-				p7.MainLoop(w, r, closing, sink)
+				p7.MainLoop(w, r, closing, sink, descChan)
 			})
 			router.Post("/stop", func(w http.ResponseWriter, r *http.Request) {
 				app.Log.Info("Stop clicked")
@@ -206,7 +207,9 @@ func main() {
 
 			router.Get("/search/{symbol}", func(w http.ResponseWriter, r *http.Request) {
 				functionSymbol := chi.URLParam(r, "symbol")
-				p7.Get(&p7.ApplicationState.QueryFunction, functionSymbol)
+				funcDesc := p7.Get(&app.QueryFunction, functionSymbol).Description
+				descChan <- funcDesc
+				app.Log.Debug("Desc sent")
 			})
 		}
 

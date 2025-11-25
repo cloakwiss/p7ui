@@ -2,23 +2,25 @@ package p7
 
 // This is copied from ntquery package
 import (
-	"bytes"
+	// "bytes"
 	"database/sql"
-	"fmt"
+	// "fmt"
 	"log"
-	"os/exec"
+	// "os/exec"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func OpenDB() (*sql.DB, func() error) {
-	cmd := exec.Command("go", "env", "GOMOD")
-	output, err := cmd.Output()
-	if err != nil {
-		log.Panicln("Find read GOMOD :", err)
-	}
-	dir := string(output[:bytes.LastIndexByte(output, byte('/'))])
-	fullpath := fmt.Sprintf("%s/%s", dir, "ntdocs.db")
+	// cmd := exec.Command("go", "env", "GOMOD")
+	// output, err := cmd.Output()
+	// if err != nil {
+	// 	log.Panicln("Find read GOMOD :", err)
+	// }
+	// dir := string(output[:bytes.LastIndexByte(output, byte('/'))])
+	// fullpath := fmt.Sprintf("%s/%s", dir, "ntdocs.db")
 
-	db, err := sql.Open("sqlite3", fullpath)
+	db, err := sql.Open("sqlite3", "ntdocs.db")
 	if err != nil {
 		log.Panicln("Cannot open ntdocs.db :", err)
 	}

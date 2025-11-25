@@ -3,7 +3,7 @@ package p7
 import (
 	// "encoding/hex"
 	"errors"
-	"fmt"
+	// "fmt"
 	"net"
 
 	deserialize "github.com/cloakwiss/project-seven/deserialize"
@@ -204,8 +204,7 @@ func (Hooks *HookList) AddCall(p7 *ApplicationState, buffer []byte) {
 
 	p7.Log.Info("Call struct:\n%v", call)
 
-	callDataString := fmt.Sprintf("%v", call)
-	p7.HookChannel <- HookData{len(Hooks.CallList), callDataString}
+	p7.HookChannel <- HookData{Call, len(Hooks.CallList), call, HookReturns{}}
 
 	Hooks.CallList = append(Hooks.CallList, call)
 }
@@ -253,8 +252,7 @@ func (Hooks *HookList) AddReturn(p7 *ApplicationState, buffer []byte) {
 
 	p7.Log.Info("Return struct:\n%v", ret)
 
-	retDataString := fmt.Sprintf("%v", ret)
-	p7.HookChannel <- HookData{len(Hooks.ReturnList), retDataString}
+	p7.HookChannel <- HookData{Return, len(Hooks.ReturnList), HookCall{}, ret}
 
 	Hooks.ReturnList = append(Hooks.ReturnList, ret)
 }

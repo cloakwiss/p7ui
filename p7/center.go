@@ -8,6 +8,13 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
+type HookType uint8
+
+const (
+	Call   HookType = 0x01
+	Return HookType = 0x02
+)
+
 type (
 	LogLine struct {
 		timestamp string
@@ -16,8 +23,10 @@ type (
 	}
 
 	HookData struct {
+		HookType
 		srno int
-		data string
+		call HookCall
+		ret  HookReturns
 	}
 
 	ChannelBundleSink struct {
@@ -40,7 +49,46 @@ func (l LogLine) String() string {
 }
 
 func (h HookData) String() string {
-	return fmt.Sprintf("<tr><td>%d</td><td><pre>%s</pre></td></tr>\n", h.srno, h.data)
+	switch h.HookType {
+	case Call:
+		return fmt.Sprintf(
+			`<tr>
+				<td>%d</td>
+				<td>%s</td>
+				<td>
+					<details>
+						<summary><a data-on-click="@get('/search/%s')">%s</a></summary>
+						<pre>%v</pre>
+					</details>
+				</td>
+				</tr>
+			`,
+			h.srno,
+			"Call",
+			h.call.id,
+			h.call.id,
+			h.call)
+	case Return:
+		return fmt.Sprintf(
+			`<tr>
+				<td>%d</td>
+				<td>%s</td>
+				<td>
+					<details>
+						<summary><a data-on-click="@get('/search/%s')">%s</a></summary>
+						<pre>%v</pre>
+					</details>
+				</td>
+				</tr>
+			`,
+			h.srno,
+			"Return",
+			h.ret.id,
+			h.ret.id,
+			h.ret)
+	default:
+		return "Error"
+	}
 }
 
 func CreateChannelBundle() (ChannelBundleSource, ChannelBundleSink) {
@@ -51,11 +99,13 @@ func CreateChannelBundle() (ChannelBundleSource, ChannelBundleSink) {
 	return ChannelBundleSource{logC, dataC}, ChannelBundleSink{logC, dataC}
 }
 
-func MainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, sink ChannelBundleSink) {
+func MainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, sink ChannelBundleSink, descChan <-chan string) {
 	sse := datastar.NewSSE(w, r)
 	modeOpt := datastar.WithModeAppend()
+	modeWithInner := datastar.WithModeInner()
 	container1 := datastar.WithSelectorID("console")
 	container2 := datastar.WithSelectorID("hooks")
+	container3 := datastar.WithSelectorID("description")
 	for {
 		select {
 		case <-control:
@@ -70,6 +120,12 @@ func MainLoop(w http.ResponseWriter, r *http.Request, control <-chan struct{}, s
 			{
 				if err := sse.PatchElements(data.String(), modeOpt, container2); err != nil {
 					log.Panicf("DataC: %s", err)
+				}
+			}
+		case desc :=  <-descChan:
+			{
+				if err := sse.PatchElements(desc, modeWithInner,container3); err != nil {
+					log.Panicf("Description error: %s", err)
 				}
 			}
 		}
