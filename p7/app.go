@@ -131,6 +131,51 @@ func GetCallStructure(id string) ([]deserialize.Values, error) {
 			return args, nil
 		}
 
+	case "CreateProcessA":
+		{
+			args := make([]deserialize.Values, 3)
+
+			args[0].Name = "lpApplicationName"
+			args[0].Val = string("")
+
+			args[1].Name = "bInheritHandles"
+			args[1].Val = int32(0)
+
+			args[2].Name = "dwCreationFlags"
+			args[2].Val = uint32(0)
+
+			return args, nil
+		}
+
+	case "GetWindow":
+		{
+			args := make([]deserialize.Values, 2)
+
+			args[0].Name = "hWnd"
+			args[0].Val = uint64(0)
+
+			args[1].Name = "uCmd"
+			args[1].Val = uint32(0)
+
+			return args, nil
+		}
+
+	case "CreateRemoteThread":
+		{
+			args := make([]deserialize.Values, 3)
+
+			args[0].Name = "hProcess"
+			args[0].Val = uint64(0)
+
+			args[1].Name = "dwStackSize"
+			args[1].Val = uint64(0)
+
+			args[2].Name = "dwCreationFlags"
+			args[2].Val = uint32(0)
+
+			return args, nil
+		}
+
 	default:
 		{
 			return nil, errors.New("Unimplemented function id")
@@ -153,6 +198,36 @@ func GetReturnStructure(id string) ([]deserialize.Values, error) {
 	case "Sleep":
 		{
 			args := make([]deserialize.Values, 0)
+			return args, nil
+		}
+
+	case "CreateProcessA":
+		{
+			args := make([]deserialize.Values, 1)
+
+			args[0].Name = "result"
+			args[0].Val = int32(0)
+
+			return args, nil
+		}
+
+	case "GetWindow":
+		{
+			args := make([]deserialize.Values, 1)
+
+			args[0].Name = "result"
+			args[0].Val = uint64(0)
+
+			return args, nil
+		}
+
+	case "CreateRemoteThread":
+		{
+			args := make([]deserialize.Values, 1)
+
+			args[0].Name = "result"
+			args[0].Val = uint64(0)
+
 			return args, nil
 		}
 
